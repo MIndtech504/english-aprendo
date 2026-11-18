@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101b3d">
+  <meta name="description" content="English Aprendo: aprende inglés con spelling, pronunciación, vocabulario y práctica guiada.">
+  <title>English Aprendo</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./assets/icon-192.png" type="image/png">
+  <link rel="stylesheet" href="./css/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#home" aria-label="English Aprendo inicio">
+      <img src="./assets/icon-192.png" alt="" width="42" height="42">
+      <span>English <b>Aprendo</b></span>
+    </a>
+    <nav class="desktop-nav" aria-label="Navegación principal">
+      <a href="#home">Inicio</a>
+      <a href="#learn">Aprender</a>
+      <a href="#progress">Mi progreso</a>
+    </nav>
+    <button class="button button-outline small" id="accountButton" type="button">Mi cuenta</button>
+  </header>
+
+  <main>
+    <section class="hero" id="home">
+      <div class="hero-copy">
+        <p class="eyebrow">TU ESPACIO PARA APRENDER INGLÉS</p>
+        <h1>Aprende inglés.<br><span>Practica sin miedo.</span></h1>
+        <p class="hero-text">Mejora tu vocabulario, spelling y pronunciación con actividades interactivas diseñadas para avanzar a tu propio ritmo.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#learn">Comenzar a aprender</a>
+          <button class="button button-ghost" id="installButton" type="button" hidden>Instalar aplicación</button>
+        </div>
+        <p class="microcopy">Aprendizaje flexible · Progreso personal · Experiencia multiplataforma</p>
+      </div>
+      <div class="hero-card" aria-label="Resumen de aprendizaje">
+        <div class="hero-card-top"><span class="status-dot"></span> TU PRÓXIMO PASO</div>
+        <div class="big-letter">Aa</div>
+        <h2>Build your confidence</h2>
+        <p>Escucha, escribe y pronuncia nuevas palabras en inglés.</p>
+        <div class="mini-stats">
+          <div><strong>01</strong><span>Escucha</span></div>
+          <div><strong>02</strong><span>Practica</span></div>
+          <div><strong>03</strong><span>Avanza</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="learn">
+      <div class="section-heading">
+        <div><p class="eyebrow">ÁREA DE APRENDIZAJE</p><h2>¿Qué quieres practicar hoy?</h2></div>
+        <p>Selecciona una actividad para comenzar.</p>
+      </div>
+      <div class="module-grid">
+        <article class="module-card">
+          <div class="module-icon gold">Aa</div><span class="tag">PALABRAS</span>
+          <h3>Spelling Bee</h3><p>Escucha palabras, escríbelas y comprueba cómo se deletrean.</p>
+          <button class="text-button" data-module="spelling">Explorar actividad <span>→</span></button>
+        </article>
+        <article class="module-card">
+          <div class="module-icon blue">◖</div><span class="tag">PRONUNCIACIÓN</span>
+          <h3>Pronunciation Lab</h3><p>Practica hablando y recibe orientación para mejorar tu pronunciación.</p>
+          <button class="text-button" data-module="pronunciation">Explorar actividad <span>→</span></button>
+        </article>
+        <article class="module-card">
+          <div class="module-icon purple">♫</div><span class="tag">COMPRENSIÓN</span>
+          <h3>Listening & Vocabulary</h3><p>Amplía tu vocabulario y desarrolla tu comprensión auditiva.</p>
+          <button class="text-button" data-module="listening">Explorar actividad <span>→</span></button>
+        </article>
+        <article class="module-card">
+          <div class="module-icon green">✎</div><span class="tag">PRÁCTICA GUIADA</span>
+          <h3>English Tutor</h3><p>Prepara textos y conversaciones para practicar inglés.</p>
+          <button class="text-button" data-module="tutor">Explorar actividad <span>→</span></button>
+        </article>
+      </div>
+    </section>
+
+    <section class="section progress-section" id="progress">
+      <div class="section-heading">
+        <div><p class="eyebrow">TU CAMINO</p><h2>Tu progreso comienza aquí</h2></div>
+      </div>
+      <div class="progress-panel">
+        <div><span class="progress-label">ACTIVIDADES COMPLETADAS EN ESTE DISPOSITIVO</span><strong id="activityCount">0</strong><p>Las actividades de esta versión inicial se guardan localmente en este navegador.</p></div>
+        <div class="progress-mark">✦</div>
+      </div>
+    </section>
+  </main>
+
+  <footer><span>© <span id="year"></span> English Aprendo</span><span>Aprender inglés paso a paso.</span></footer>
+
+  <dialog id="infoDialog" class="dialog">
+    <div class="dialog-head"><span class="eyebrow">ENGLISH APRENDO</span><button class="close-button" id="closeDialog" aria-label="Cerrar">×</button></div>
+    <h2 id="dialogTitle">Próximamente</h2>
+    <p id="dialogText">Este módulo se habilitará en una próxima etapa del proyecto.</p>
+    <button class="button button-primary" id="dialogOk">Entendido</button>
+  </dialog>
+
+  <script src="./js/app.js" defer></script>
+</body>
+</html>
