@@ -1,0 +1,2551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spelling Bee | English Aprendo • US Audio &amp; Practice</title>
+  <!-- Google Fonts: Inter (UI), Merriweather (Stage Word Display), JetBrains Mono (Letter Diff) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&family=Merriweather:wght@700;900&display=swap" rel="stylesheet" />
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            serif: ['Merriweather', 'Georgia', 'serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            bee: {
+              navy: '#0f172a',
+              slate: '#1e293b',
+              cream: '#faf8f5',
+              ivory: '#fffdf9',
+              gold: '#d97706',
+              amber: '#f59e0b',
+              goldLight: '#fef3c7',
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    /* Audio visualizer pulse when stream is actively playing */
+    @keyframes eqPulse {
+      0%, 100% { transform: scaleY(0.28); }
+      50% { transform: scaleY(1); }
+    }
+    .eq-bar {
+      transform-origin: bottom;
+      animation: eqPulse 0.7s ease-in-out infinite;
+    }
+    .eq-bar:nth-child(2) { animation-delay: 0.14s; }
+    .eq-bar:nth-child(3) { animation-delay: 0.28s; }
+    .eq-bar:nth-child(4) { animation-delay: 0.42s; }
+
+    @keyframes stagePop {
+      0% { opacity: 0; transform: translateY(6px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    .animate-stage {
+      animation: stagePop 0.24s ease-out forwards;
+    }
+
+    /* Clean scrollbar for Word List Modal */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body class="bg-bee-cream text-slate-800 font-sans min-h-screen flex flex-col selection:bg-amber-200 selection:text-slate-900">
+
+  <!-- Top Competition Header -->
+  <header class="bg-bee-navy text-white border-b-4 border-amber-500 shadow-lg sticky top-0 z-30">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-2.5">
+      <!-- Brand / Title -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-md text-slate-950 shrink-0">
+          <!-- Trophy SVG Icon -->
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8 21h8m-4-4v4m-5.5-9.5A5.5 5.5 0 016.5 6h11a5.5 5.5 0 010 5.5M6.5 6H4a1 1 0 00-1 1v1.5A3.5 3.5 0 006.5 12m11-6H20a1 1 0 011 1v1.5a3.5 3.5 0 01-3.5 3.5" />
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base sm:text-lg font-extrabold tracking-tight text-white">Spelling Bee | English Aprendo</h1>
+            <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/20 text-amber-300 border border-amber-400/30">
+              en-US Cloud + Offline Audio
+            </span>
+          </div>
+          <p class="text-xs text-slate-300">English Aprendo • American English Audio &amp; Vocabulary Practice</p>
+        </div>
+      </div>
+
+      <!-- Header Controls: Test Sound, Auto-Speak, Chimes, Word List -->
+      <div class="flex flex-wrap items-center gap-2">
+        <!-- One-Click Test Sound Button -->
+        <button id="testSoundBtn" type="button" title="Verify American English audio playback"
+          class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow transition active:scale-95 cursor-pointer">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+          </svg>
+          <span>Test Sound</span>
+        </button>
+
+        <!-- Auto-Speak Toggle -->
+        <button id="toggleAutoPronounce" type="button" title="Automatically pronounce each new word"
+          class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold border transition cursor-pointer bg-slate-800/90 border-slate-700 text-amber-300 hover:bg-slate-700">
+          <span id="autoPronounceDot" class="w-2 h-2 rounded-full bg-emerald-400"></span>
+          <span>Auto-Speak</span>
+        </button>
+
+        <!-- Sound Chimes Toggle -->
+        <button id="toggleSoundFx" type="button" title="Toggle answer feedback chimes"
+          class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold border transition cursor-pointer bg-slate-800/90 border-slate-700 text-slate-200 hover:bg-slate-700">
+          <svg id="soundFxIcon" class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+          </svg>
+          <span class="hidden md:inline">Chimes</span>
+        </button>
+
+        <!-- Word List & Progress Modal Button -->
+        <button id="openWordListBtn" type="button"
+          class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 shadow transition cursor-pointer">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+          </svg>
+          <span>Word List</span>
+        </button>
+        <a href="./index.html" aria-label="Back to English Aprendo home"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-white hover:bg-amber-50 text-slate-900 border border-slate-300 shadow-sm transition">
+          <span aria-hidden="true">←</span><span>English Aprendo</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-4 sm:py-6 space-y-4">
+
+    <!-- Restricted In-App Browser Warning Banner (Shown only if all audio layers fail) -->
+    <div id="audioBlockedBanner" class="hidden bg-rose-50 border-2 border-rose-300 text-rose-950 rounded-2xl p-4 shadow-sm animate-stage">
+      <div class="flex items-start gap-3">
+        <div class="w-8 h-8 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center shrink-0 mt-0.5 font-extrabold">!</div>
+        <div class="space-y-1 text-xs sm:text-sm">
+          <p class="font-bold text-rose-900">Audio Playback Was Blocked by This Viewer</p>
+          <p class="text-rose-800 leading-relaxed">
+            If you opened this file inside WhatsApp, Messenger, or a phone file previewer, audio is often restricted. Tap the menu icon (<span class="font-mono font-bold">&#8942;</span> or Share) and choose <strong>"Open in Chrome"</strong> or <strong>"Open in Safari"</strong>, and make sure your device is not on Silent mode.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Deck Controls & American Audio Mode Configuration Bar -->
+    <section class="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-3.5 sm:p-4 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+      <!-- Left: Deck Filter & Reshuffle -->
+      <div class="flex flex-wrap items-center gap-2">
+        <div class="relative flex-1 sm:flex-initial min-w-[215px]">
+          <label for="deckFilterSelect" class="sr-only">Filter Word Deck</label>
+          <select id="deckFilterSelect"
+            class="w-full appearance-none bg-slate-50 border border-slate-300 text-slate-800 text-xs sm:text-sm font-semibold rounded-xl pl-3.5 pr-9 py-2.5 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 cursor-pointer">
+            <!-- Populated dynamically -->
+          </select>
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-slate-500">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </div>
+
+        <button id="reshuffleBtn" type="button" title="Shuffle current word list (Alt+R)"
+          class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-slate-100 hover:bg-amber-100 text-slate-700 hover:text-amber-900 border border-slate-200 hover:border-amber-300 transition cursor-pointer">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          <span>Reshuffle</span>
+        </button>
+      </div>
+
+      <!-- Right: Audio Source Mode & Playback Speed -->
+      <div class="flex flex-wrap items-center gap-2">
+        <div class="flex items-center gap-1.5 flex-1 sm:flex-initial min-w-[215px]">
+          <span class="inline-flex items-center px-2 py-1 rounded-lg bg-blue-50 text-blue-800 border border-blue-200 text-[11px] font-bold shrink-0">
+            US Audio
+          </span>
+          <div class="relative flex-1">
+            <label for="audioModeSelect" class="sr-only">Audio Source Mode</label>
+            <select id="audioModeSelect"
+              class="w-full appearance-none bg-slate-50 border border-slate-300 text-slate-700 text-xs font-semibold rounded-xl pl-3 pr-8 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer">
+              <option value="auto">Auto (US Cloud MP3 + Offline)</option>
+              <option value="cloud">US Cloud MP3 Only</option>
+              <option value="device">Device Voice Only</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Speech Rate Toggle -->
+        <div class="inline-flex rounded-xl bg-slate-100 p-1 border border-slate-200" role="group" aria-label="Speech Speed">
+          <button id="speedNormalBtn" type="button"
+            class="px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer bg-white text-slate-900 shadow-sm">
+            Normal (0.95x)
+          </button>
+          <button id="speedSlowBtn" type="button"
+            class="px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer text-slate-600 hover:text-slate-900">
+            Slow (0.72x)
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Progress Bar & Telemetry Stats -->
+    <section class="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-3.5 sm:p-4">
+      <div class="flex flex-wrap items-center justify-between gap-2.5 mb-2">
+        <div class="flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-700">
+          <span>Session Progress:</span>
+          <span id="deckPositionText" class="font-bold text-slate-900">Word 1 of 696</span>
+          <span id="audioEngineTag" class="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-blue-50 text-blue-700 border border-blue-200">
+            en-US Stream Ready
+          </span>
+        </div>
+
+        <!-- Stats Pills -->
+        <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs">
+          <div class="px-2.5 py-1 rounded-xl bg-emerald-50 border border-emerald-200 font-semibold text-emerald-800">
+            Mastered: <span id="statMastered" class="font-bold">0</span>
+          </div>
+          <div class="px-2.5 py-1 rounded-xl bg-slate-100 border border-slate-200 font-semibold text-slate-700">
+            Accuracy: <span id="statAccuracy" class="font-bold text-slate-900">—</span>
+          </div>
+          <div class="px-2.5 py-1 rounded-xl bg-amber-50 border border-amber-200 font-semibold text-amber-900">
+            Streak: <span id="statStreak" class="font-bold">0</span>
+          </div>
+          <button id="missedPillBtn" type="button" title="Click to practice missed words"
+            class="px-2.5 py-1 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-200 font-semibold text-rose-800 transition cursor-pointer">
+            Missed: <span id="statMissed" class="font-bold">0</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Progress Track -->
+      <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden border border-slate-200/70">
+        <div id="progressBarFill" class="h-full bg-gradient-to-r from-amber-500 to-amber-400 rounded-full transition-all duration-300" style="width: 0.2%;"></div>
+      </div>
+    </section>
+
+    <!-- Main Competition Stage Card -->
+    <section id="stageCard" class="bg-bee-ivory rounded-3xl border-2 border-slate-200/90 border-t-4 border-t-amber-500 shadow-md p-5 sm:p-7 space-y-5 animate-stage">
+
+      <!-- Stage Top Meta Row & Honest Audio Status Indicator -->
+      <div class="flex flex-wrap items-center justify-between gap-2.5 min-h-[34px]">
+        <div class="flex flex-wrap items-center gap-2">
+          <span id="stageLetterBadge" class="inline-flex items-center px-3 py-1 rounded-xl text-xs font-extrabold uppercase tracking-wider bg-bee-navy text-amber-400">
+            Letter A
+          </span>
+          <span id="stagePosBadge" class="hidden inline-flex items-center px-3 py-1 rounded-xl text-xs font-semibold italic bg-amber-100/80 text-amber-900 border border-amber-200">
+            noun
+          </span>
+          <span id="stageMissedTag" class="hidden inline-flex items-center px-2.5 py-1 rounded-xl text-xs font-semibold bg-rose-100 text-rose-800 border border-rose-200">
+            Review Word
+          </span>
+        </div>
+
+        <!-- Honest Audio State Badge (Connecting vs Actively Playing) -->
+        <div class="flex items-center gap-2">
+          <!-- Connecting State -->
+          <div id="audioConnectingIndicator" class="hidden items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 border border-slate-300 text-slate-700 text-xs font-semibold">
+            <svg class="animate-spin w-3.5 h-3.5 text-amber-600" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+            <span id="connectingLabel">Connecting audio...</span>
+          </div>
+
+          <!-- Active Speaking State (Only visible once audio.onplaying or utterance.onstart fires) -->
+          <div id="speakingIndicator" class="hidden items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-100 border border-emerald-300 text-emerald-950 text-xs font-bold">
+            <div class="flex items-end gap-0.5 h-3.5" aria-hidden="true">
+              <span class="eq-bar w-1 h-full bg-emerald-600 rounded-full"></span>
+              <span class="eq-bar w-1 h-full bg-emerald-600 rounded-full"></span>
+              <span class="eq-bar w-1 h-full bg-emerald-600 rounded-full"></span>
+              <span class="eq-bar w-1 h-full bg-emerald-600 rounded-full"></span>
+            </div>
+            <span id="speakingLabel">Speaking (US Accent)</span>
+            <button id="stopAudioBtn" type="button" class="ml-1 text-emerald-900 hover:text-rose-700 underline font-semibold cursor-pointer">
+              Stop
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Centerpiece Audio Stage / Word Reveal Area -->
+      <div id="stageCenterpiece" class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-7 text-center shadow-inner relative overflow-hidden">
+        <!-- State A: Active Mystery Word (Hidden Spelling) -->
+        <div id="mysteryWordState" class="space-y-3.5">
+          <div class="inline-flex flex-col items-center">
+            <button id="pronounceWordBtn" type="button"
+              class="group relative w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-bee-navy to-slate-800 hover:from-slate-800 hover:to-slate-900 text-amber-400 shadow-lg hover:shadow-xl border-4 border-amber-400/80 flex items-center justify-center transition-all duration-200 active:scale-95 cursor-pointer focus:outline-none focus:ring-4 focus:ring-amber-300"
+              title="Pronounce Word in US Accent (Alt+1)">
+              <svg class="w-10 h-10 sm:w-11 sm:h-11 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+              </svg>
+            </button>
+          </div>
+          <div>
+            <h2 class="text-lg sm:text-xl font-bold text-slate-900">Tap Speaker to Hear the Word</h2>
+            <p class="text-xs sm:text-sm text-slate-500 mt-1">
+              Press <kbd class="px-1.5 py-0.5 text-xs font-mono bg-slate-100 border border-slate-300 rounded">Alt + 1</kbd> or tap the speaker above for American English pronunciation.
+            </p>
+          </div>
+        </div>
+
+        <!-- State B: Word Checked / Revealed Feedback View -->
+        <div id="revealedWordState" class="hidden space-y-4">
+          <div id="resultBanner" class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold">
+            <!-- Populated dynamically -->
+          </div>
+
+          <div class="flex flex-wrap items-center justify-center gap-3">
+            <h2 id="revealedWordHeading" class="font-serif text-3xl sm:text-5xl font-black tracking-wide text-slate-900 select-all">
+              <!-- Target Word -->
+            </h2>
+            <button id="replayRevealedBtn" type="button" title="Hear pronunciation again (Alt+1)"
+              class="p-2.5 rounded-full bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 transition cursor-pointer">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Letter-by-Letter Alignment Box -->
+          <div id="letterDiffContainer" class="hidden max-w-xl mx-auto bg-slate-50 rounded-xl border border-slate-200 p-3.5 text-left space-y-2">
+            <div class="text-xs font-bold uppercase tracking-wider text-slate-500 flex flex-wrap items-center justify-between gap-1">
+              <span>Letter-by-Letter Comparison</span>
+              <span class="text-[11px] font-normal">Green = Match • Red = Mismatch • Dashed = Missing</span>
+            </div>
+            <div class="space-y-1.5 overflow-x-auto pb-1">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-semibold text-slate-500 w-20 shrink-0">Your Try:</span>
+                <div id="diffUserRow" class="flex items-center gap-1 font-mono text-sm font-bold"></div>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-semibold text-emerald-700 w-20 shrink-0">Correct:</span>
+                <div id="diffTargetRow" class="flex items-center gap-1 font-mono text-sm font-bold"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- On-Demand Judge Commands Deck -->
+      <div class="space-y-2.5">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-500">
+            Competition Judge Commands (On-Demand)
+          </h3>
+          <span id="judgeLoadingHint" class="hidden text-xs font-medium text-amber-700 flex items-center gap-1.5">
+            <svg class="animate-spin w-3.5 h-3.5 text-amber-600" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+            Loading judge prompt...
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+          <!-- Command 1: Sentence 1 -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-4 flex flex-col justify-between shadow-sm hover:border-amber-300 transition">
+            <div class="space-y-2.5">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                  <span class="w-5 h-5 rounded-md bg-slate-100 text-slate-700 font-mono text-[11px] flex items-center justify-center border border-slate-200">2</span>
+                  Context Sentence 1
+                </span>
+                <kbd class="px-1.5 py-0.5 text-[11px] font-mono bg-slate-100 text-slate-600 border border-slate-200 rounded">Alt+2</kbd>
+              </div>
+
+              <button id="sentence1Btn" type="button"
+                class="w-full py-2.5 px-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 shadow-sm transition active:scale-[0.99] cursor-pointer">
+                <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Speak Sentence 1</span>
+              </button>
+
+              <!-- Masked Text Box (Hidden by default; masks target word until submitted) -->
+              <div id="sentence1TextContainer" class="hidden p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 leading-relaxed"></div>
+              <p id="sentence1HiddenNote" class="text-[11px] text-slate-400 italic">
+                Audio-only by default (written text masks the target word).
+              </p>
+            </div>
+
+            <div class="pt-3 mt-2 border-t border-slate-100 flex justify-end">
+              <button id="toggleSentence1TextBtn" type="button"
+                class="text-xs font-semibold text-slate-500 hover:text-amber-700 inline-flex items-center gap-1 transition cursor-pointer">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                <span id="toggleSentence1Label">Show Text</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Command 2: Sentence 2 -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-4 flex flex-col justify-between shadow-sm hover:border-amber-300 transition">
+            <div class="space-y-2.5">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                  <span class="w-5 h-5 rounded-md bg-slate-100 text-slate-700 font-mono text-[11px] flex items-center justify-center border border-slate-200">3</span>
+                  Context Sentence 2
+                </span>
+                <kbd class="px-1.5 py-0.5 text-[11px] font-mono bg-slate-100 text-slate-600 border border-slate-200 rounded">Alt+3</kbd>
+              </div>
+
+              <button id="sentence2Btn" type="button"
+                class="w-full py-2.5 px-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 shadow-sm transition active:scale-[0.99] cursor-pointer">
+                <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Speak Sentence 2</span>
+              </button>
+
+              <!-- Masked Text Box -->
+              <div id="sentence2TextContainer" class="hidden p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 leading-relaxed"></div>
+              <p id="sentence2HiddenNote" class="text-[11px] text-slate-400 italic">
+                Second distinct sentence in audio-only mode.
+              </p>
+            </div>
+
+            <div class="pt-3 mt-2 border-t border-slate-100 flex justify-end">
+              <button id="toggleSentence2TextBtn" type="button"
+                class="text-xs font-semibold text-slate-500 hover:text-amber-700 inline-flex items-center gap-1 transition cursor-pointer">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                <span id="toggleSentence2Label">Show Text</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Command 3: Definition (Text & Audio — Word Scrubbed) -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-4 flex flex-col justify-between shadow-sm hover:border-amber-300 transition">
+            <div class="space-y-2.5">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                  <span class="w-5 h-5 rounded-md bg-amber-100 text-amber-900 font-mono text-[11px] flex items-center justify-center border border-amber-300">4</span>
+                  Definition (Text &amp; Audio)
+                </span>
+                <kbd class="px-1.5 py-0.5 text-[11px] font-mono bg-slate-100 text-slate-600 border border-slate-200 rounded">Alt+4</kbd>
+              </div>
+
+              <button id="definitionBtn" type="button"
+                class="w-full py-2.5 px-3.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 shadow-sm transition active:scale-[0.99] cursor-pointer">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+                <span>Get Definition</span>
+              </button>
+
+              <!-- Definition Display Area -->
+              <div id="definitionTextContainer" class="hidden p-2.5 rounded-xl bg-amber-50/70 border border-amber-200 text-xs text-slate-800 leading-relaxed"></div>
+              <p id="definitionPlaceholderNote" class="text-[11px] text-slate-400 italic">
+                Reveals safe definition text &amp; speaks it aloud (target word scrubbed).
+              </p>
+            </div>
+
+            <div class="pt-3 mt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
+              <span>Target word protected</span>
+              <button id="replayDefinitionBtn" type="button" class="hidden text-xs font-semibold text-amber-800 hover:text-amber-950 cursor-pointer">
+                Replay Audio
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Student Spelling Input & Action Bar -->
+      <form id="spellingForm" class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 space-y-4 shadow-sm" autocomplete="off">
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between">
+            <label for="spellingInput" class="text-xs sm:text-sm font-bold text-slate-800">
+              Type Your Spelling
+            </label>
+            <span class="text-[11px] text-slate-400">Spellcheck &amp; autocomplete disabled</span>
+          </div>
+          <input
+            id="spellingInput"
+            type="text"
+            spellcheck="false"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            data-lpignore="true"
+            data-form-type="other"
+            placeholder="Listen to the word and type its spelling here..."
+            class="w-full px-4 py-3.5 text-lg sm:text-2xl font-mono font-bold tracking-wider text-center bg-slate-50 border-2 border-slate-300 rounded-xl text-slate-900 placeholder:text-slate-400 placeholder:font-sans placeholder:text-sm sm:placeholder:text-base placeholder:font-normal placeholder:tracking-normal focus:outline-none focus:bg-white focus:border-amber-500 focus:ring-4 focus:ring-amber-500/20 transition"
+          />
+        </div>
+
+        <!-- Primary Action Buttons -->
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          <div class="flex items-center gap-2">
+            <button id="prevWordBtn" type="button" title="Previous Word"
+              class="px-3.5 py-3 rounded-xl text-xs sm:text-sm font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 transition cursor-pointer">
+              &larr; Prev
+            </button>
+            <button id="revealWordBtn" type="button"
+              class="flex-1 sm:flex-initial px-4 py-3 rounded-xl text-xs sm:text-sm font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 transition cursor-pointer">
+              Reveal Word
+            </button>
+          </div>
+
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+            <button id="checkSpellingBtn" type="submit"
+              class="px-6 py-3 rounded-xl text-sm sm:text-base font-bold bg-bee-navy hover:bg-slate-800 text-amber-400 shadow-md hover:shadow-lg transition active:scale-[0.99] cursor-pointer">
+              Check Spelling (Enter)
+            </button>
+            <button id="nextWordBtn" type="button" title="Skip or Advance to Next Word (Alt+N)"
+              class="px-6 py-3 rounded-xl text-sm sm:text-base font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md hover:shadow-lg transition active:scale-[0.99] cursor-pointer">
+              Next Word &rarr;
+            </button>
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <!-- Keyboard Shortcuts Footer Bar -->
+    <footer class="text-center text-xs text-slate-500 pb-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5">
+      <span><kbd class="px-1.5 py-0.5 bg-white border border-slate-300 rounded font-mono text-[11px]">Alt+1</kbd> Pronounce</span>
+      <span><kbd class="px-1.5 py-0.5 bg-white border border-slate-300 rounded font-mono text-[11px]">Alt+2</kbd> Sentence 1</span>
+      <span><kbd class="px-1.5 py-0.5 bg-white border border-slate-300 rounded font-mono text-[11px]">Alt+3</kbd> Sentence 2</span>
+      <span><kbd class="px-1.5 py-0.5 bg-white border border-slate-300 rounded font-mono text-[11px]">Alt+4</kbd> Definition</span>
+      <span><kbd class="px-1.5 py-0.5 bg-white border border-slate-300 rounded font-mono text-[11px]">Enter</kbd> Check / Next</span>
+      <span><kbd class="px-1.5 py-0.5 bg-white border border-slate-300 rounded font-mono text-[11px]">Alt+R</kbd> Reshuffle</span>
+    </footer>
+  </main>
+
+  <!-- Toast Notification Container (Replaces alert() cleanly) -->
+  <div id="toastContainer" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Word List & Progress Modal -->
+  <div id="wordListModal" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-4xl w-full max-h-[88vh] flex flex-col overflow-hidden animate-stage">
+      <!-- Modal Header -->
+      <div class="bg-bee-navy text-white px-6 py-4 flex items-center justify-between border-b-2 border-amber-500">
+        <div>
+          <h2 class="text-base sm:text-lg font-extrabold">Complete 8th Grade Spelling Bee Word List</h2>
+          <p id="modalSummaryText" class="text-xs text-slate-300">Official Words • Click any word to jump directly to it</p>
+        </div>
+        <button id="closeWordListBtn" type="button" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition cursor-pointer">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Modal Search & Status Filter -->
+      <div class="p-4 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <input id="modalSearchInput" type="text" placeholder="Search all words..."
+          class="flex-1 px-3.5 py-2 text-sm bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500" />
+        <div class="flex items-center gap-2">
+          <select id="modalStatusFilter" class="px-3 py-2 text-xs sm:text-sm font-semibold bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer">
+            <option value="all">All Words</option>
+            <option value="mastered">Mastered</option>
+            <option value="missed">Missed</option>
+            <option value="unseen">Not Practiced Yet</option>
+          </select>
+          <button id="resetProgressBtn" type="button"
+            class="px-3 py-2 text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl transition cursor-pointer">
+            Reset Stats
+          </button>
+        </div>
+      </div>
+
+      <!-- Modal Word Grid -->
+      <div id="modalWordGrid" class="p-5 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
+        <!-- Populated dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Application Logic -->
+  <script>
+    (function () {
+      'use strict';
+
+      /**
+       * ============================================================================
+       * 1. COMPLETE 8TH GRADE SPELLING BEE WORD BANK (A–Z)
+       * ============================================================================
+       */
+      const WORD_BANK = {
+        A: [
+          'absentee', 'aberration', 'arrive', 'absurd', 'accuse', 'adorable', 'abuse', 'ache', 'arduous', 'adulation',
+          'achieve', 'amusement', 'accident', 'acknowledge', 'accusation', 'accommodate', 'acquaint', 'adjustment', 'accompany', 'acquire',
+          'ambience', 'accomplish', 'acre', 'approve', 'according', 'abhor', 'appease', 'account', 'abnegation', 'analyze'
+        ],
+        B: [
+          'bachelor', 'biographical', 'bohemian', 'baggage', 'beeswax', 'bosom', 'bandanna', 'baffle', 'brevity', 'barefoot',
+          'blithe', 'bedazzling', 'brunette', 'buckwheat', 'barometer', 'brazen', 'beaming', 'bridle', 'beginning', 'bonded',
+          'budget', 'blackbird', 'beguile', 'bulldozer', 'beneficial', 'boredom', 'bagpipe', 'benchmark', 'bogus', 'bailiff'
+        ],
+        C: [
+          'catastrophe', 'cellular', 'constitute', 'cautious', 'chandelier', 'community', 'candid', 'circumstantial', 'compelling', 'contraption',
+          'coherent', 'comprehensive', 'circumference', 'commissioner', 'conceivable', 'commitment', 'celestial', 'convene', 'compassionate', 'catalyst',
+          'corroborate', 'commence', 'celebratory', 'cynical', 'contemporary', 'commendable', 'cumulative', 'competent', 'cascade', 'cordial'
+        ],
+        D: [
+          'detrimental', 'discern', 'dialogue', 'devious', 'durable', 'decrypt', 'dauntless', 'disparage', 'deflate', 'disperse',
+          'defer', 'decline', 'distort', 'diverse', 'dispel', 'discreet', 'deficient', 'disruptive', 'delegate', 'dispute',
+          'disadvantage', 'dissonance', 'distinction', 'deter', 'denounce', 'demolish', 'drastic', 'diminutive', 'diligently', 'dissonant'
+        ],
+        E: [
+          'eager', 'exhibit', 'enhance', 'elaborate', 'emaciated', 'engender', 'eliminate', 'essential', 'eradicate', 'emotion',
+          'emulate', 'ethical', 'empathy', 'evaluate', 'embarrassing', 'encounter', 'engrave', 'eccentric', 'entail', 'emancipate',
+          'empirical', 'endemic', 'embellish', 'evidence', 'emigrate', 'enunciate', 'exaggerate', 'enigma', 'eclectic'
+        ],
+        F: [
+          'furniture', 'fraternization', 'frigid', 'fortify', 'futuristic', 'fervor', 'frustrating', 'fostering', 'faction', 'fracture',
+          'fluctuation', 'fulfillment', 'finite', 'fortitude', 'flagrant', 'functionality', 'felicity', 'frustration', 'fertilization', 'formulation',
+          'fathom', 'foreshadow', 'factional', 'fundamental', 'formidable', 'fecundity', 'fulminate', 'follicle', 'feasibility', 'fallacy'
+        ],
+        G: [
+          'gluttonous', 'germinate', 'gallstone', 'geothermal', 'gargoyle', 'glaciology', 'governance', 'grievance', 'glossary', 'guile',
+          'granulate', 'garrulous', 'gallivant', 'gravitational', 'gradation', 'gastric', 'gynecologist', 'grandiose', 'guacamole', 'gallantry',
+          'galleon', 'garnishment', 'garrison', 'gamble', 'galvanic', 'glimmering', 'galore'
+        ],
+        H: [
+          'haphazard', 'heresy', 'humorous', 'harbinger', 'hypnosis', 'hilarious', 'hammock', 'habitual', 'hiatus', 'havoc',
+          'hectic', 'hereditary', 'heed', 'holistic', 'hierarchical', 'hierarchy', 'heritage', 'hologram', 'hollow', 'honorable',
+          'hospitable', 'horrendous', 'hostile', 'harbor', 'humility', 'hustle', 'hasten', 'hypothetical', 'harmonious', 'hardware'
+        ],
+        I: [
+          'inquire', 'irrational', 'idealize', 'inevitable', 'isolate', 'ideology', 'immense', 'impressive', 'igneous', 'ignite',
+          'influence', 'inclination', 'infectious', 'illustrate', 'inclusive', 'illuminate', 'incidental', 'incognito', 'inconsistent', 'inequality',
+          'incompatible', 'innovative', 'infringed', 'inconceivable', 'impartial', 'invertebrate', 'inconvenience', 'insufficient', 'isosceles', 'incriminate'
+        ],
+        J: [
+          'justifiable', 'judiciary', 'juxtapose', 'jaded', 'jovial', 'jasmine', 'jagged', 'jubilant', 'juncture', 'jaunt',
+          'judicious', 'jarring', 'jealous', 'juggle', 'juggler', 'jettison', 'juice', 'jigsaw', 'jitter', 'justify',
+          'jostle', 'jobber', 'juxtaposition', 'jackal', 'jocular', 'jinx', 'jewelry', 'join', 'journal', 'jargon'
+        ],
+        K: [
+          'kaleidoscope', 'knockout', 'kneehole', 'khaki', 'knickers', 'kilogram', 'kidney', 'kickback', 'kilobyte', 'kerosene',
+          'knapsack', 'kickball', 'kindergarten', 'keepsake', 'killjoy', 'kilowatt', 'kerchief', 'kerfuffle', 'knot', 'kingbird',
+          'kinetoscope', 'knitting', 'knothole', 'knighthood', 'knowledge', 'kindhearted', 'knowledgeable', 'knuckle', 'kleptomaniac', 'knucklehead'
+        ],
+        L: [
+          'laggard', 'liveliness', 'luster', 'laborious', 'logical', 'lethargy', 'languor', 'locution', 'lichen', 'laxity',
+          'lucidity', 'localize', 'legitimate', 'lucrative', 'lynx', 'leniency', 'lullaby', 'logistic', 'lexicon', 'laconic',
+          'lavish', 'larceny', 'luscious', 'lottery', 'linear', 'luminance', 'librarian', 'linguistic', 'lunatic', 'license'
+        ],
+        M: [
+          'mangrove', 'maritime', 'membrane', 'moralism', 'meanness', 'massacre', 'monarchy', 'monitory', 'meekness', 'moralist',
+          'menace', 'motoring', 'muscatel', 'moralize', 'manorial', 'mainstay', 'moccasin', 'mythical', 'monition', 'macaroni',
+          'munition', 'magician', 'maintain', 'macaroon', 'milepost', 'memorandum', 'minister', 'memoir', 'meantime', 'murderous'
+        ],
+        N: [
+          'navigate', 'nucleus', 'neglect', 'negotiate', 'nuisance', 'negligent', 'network', 'nurture', 'nervous', 'neutral',
+          'nutrient', 'nonsensical', 'nominal', 'narrate', 'nevertheless', 'nostalgic', 'narrative', 'noble', 'notable', 'natural',
+          'necessity', 'notation', 'noteworthy', 'nemesis', 'naive', 'necessary', 'nominate', 'nuance', 'negative', 'nonfiction'
+        ],
+        O: [
+          'oblivious', 'oppressive', 'overtake', 'oblique', 'optic', 'overwhelm', 'obstruct', 'orchestra', 'oxidize', 'onerous',
+          'orthodox', 'oxygen', 'occurrence', 'outlandish', 'ozone', 'odious', 'outrageous', 'outweigh', 'officiate', 'ovation',
+          'occupant', 'overcome', 'outcome', 'outbreak', 'onslaught', 'overestimate', 'omission', 'opaque', 'overflow', 'omnivore'
+        ],
+        P: [
+          'parallelism', 'precautionary', 'preservation', 'pathogenic', 'predecessor', 'pragmatism', 'perseverance', 'potentiality', 'perspective', 'principle',
+          'presumption', 'prediction', 'prejudice', 'protagonist', 'polarization', 'philanthropy', 'protocol', 'prerequisite', 'physiology', 'pseudonym',
+          'portfolio', 'placate', 'purport', 'productivity', 'plagiarism', 'proliferation', 'procession', 'pragmatic', 'paradoxical', 'precision'
+        ],
+        Q: [
+          'quizzical', 'quarantine', 'quintet', 'quest', 'quality', 'quiet', 'quantity', 'quandary', 'quagmire', 'quicksand',
+          'quintuple', 'quasar', 'quicksilver', 'quench', 'quibble', 'quotation', 'quilt', 'quiver', 'quirkiness', 'quip',
+          'quota', 'quizzing', 'quirk', 'quotient', 'quadrant', 'quote', 'quenchless', 'quotable'
+        ],
+        R: [
+          'rationale', 'relinquish', 'recruit', 'reminisce', 'rapacious', 'reflexive', 'relegate', 'reconcile', 'rhetorical', 'rectify',
+          'remorse', 'radiant', 'rejuvenate', 'rampant', 'relentless', 'resilient', 'revel', 'refute', 'rhetoric', 'renaissance',
+          'rhapsody', 'reprimand', 'residual', 'restriction', 'remarkable', 'riveting', 'reproach', 'redundance', 'referee'
+        ],
+        S: [
+          'simultaneous', 'sachet', 'sacrifice', 'sacrilege', 'serendipity', 'salmon', 'salmonella', 'satisfying', 'saucer', 'savage',
+          'saxophone', 'scaffolding', 'scarcely', 'scattering', 'scavenge', 'scenario', 'skeptical', 'schedule', 'scheme', 'scientific',
+          'scissors', 'scrabble', 'scrawny', 'screwdriver', 'scrupulous', 'scrutinize', 'sculpture', 'seashore', 'seasonal', 'seaweed'
+        ],
+        T: [
+          'tangible', 'therapeutic', 'translucent', 'tantalize', 'thesis', 'trepidation', 'taxonomy', 'threshold', 'taciturn', 'tarnish',
+          'thrombosis', 'truancy', 'telekinesis', 'thesaurus', 'truncate', 'temperate', 'topography', 'tumult', 'theorem', 'turbine',
+          'tenet', 'transcribe', 'turbulence', 'tensile', 'torrential', 'totalitarian', 'terrestrial', 'tournament', 'torpedo'
+        ],
+        U: [
+          'ultimate', 'unrelenting', 'ubiquitous', 'uphold', 'uplift', 'undermine', 'ultimatum', 'untangle', 'unprecedented', 'unveil',
+          'uproar', 'unflinching', 'ungainly', 'unyielding', 'unwitting', 'unfashionable', 'upbeat', 'unison', 'usurp', 'unorthodox',
+          'unfathomable', 'upstage', 'unearth', 'unilateral', 'undulate', 'unforgettable'
+        ],
+        V: [
+          'visceral', 'value', 'vicarious', 'vigilant', 'vivid', 'viscous', 'vegetarian', 'vehicle', 'ventricle', 'vehement',
+          'vendetta', 'vernacular', 'venture', 'venue', 'veneer', 'vermin', 'verge', 'verdict', 'veranda', 'vault',
+          'vertebrate', 'vertigo', 'vessel', 'vibrate', 'versus'
+        ],
+        W: [
+          'wager', 'waitress', 'waive', 'walrus', 'warfare', 'warrant', 'wasteland', 'widespread', 'width', 'wilderness',
+          'wildfire', 'willful', 'willow', 'wince', 'windmill', 'windowsill', 'windpipe', 'windshield', 'winkle', 'wrinkle',
+          'wedding', 'wedge', 'wizened', 'weight', 'weird', 'wrangle', 'wench'
+        ],
+        Y: [
+          'youthless', 'yammer', 'yacht', 'yield', 'yourself', 'yawning'
+        ],
+        Z: [
+          'zabaglione', 'zoology', 'zeta', 'zealot', 'zenith', 'zoning', 'zygote', 'zest', 'zooplankton', 'zodiac',
+          'zany', 'zeppelin', 'zombie', 'zealous', 'zoophyte', 'zucchini', 'zen', 'zephyr', 'zinc', 'zoom',
+          'zigzag'
+        ]
+      };
+
+      // Build unique master list of words (preserving order while ensuring uniqueness)
+      const ALL_WORDS = [];
+      const SEEN_WORDS = new Set();
+      Object.keys(WORD_BANK).forEach((letter) => {
+        WORD_BANK[letter].forEach((rawWord) => {
+          const clean = rawWord.trim();
+          const lower = clean.toLowerCase();
+          if (!SEEN_WORDS.has(lower)) {
+            SEEN_WORDS.add(lower);
+            ALL_WORDS.push({ word: clean, letter });
+          }
+        });
+      });
+
+      /**
+       * ============================================================================
+       * 2. CURATED OFFLINE DICTIONARY FOR SPECIALIZED & TRICKY COMPETITION WORDS
+       * Strictly follows rule: definitions NEVER include the target word or stem.
+       * ============================================================================
+       */
+      const CURATED_LEXICON = {
+        zabaglione: {
+          partOfSpeech: 'noun',
+          definition: 'A rich, frothy Italian dessert sauce made by whisking egg yolks, sugar, and sweet wine over gentle heat.',
+          sentence1: 'The pastry chef served warm berries topped with a delicate spoonful of zabaglione.',
+          sentence2: 'Preparing traditional zabaglione requires constant whisking so the custard stays light and airy.'
+        },
+        zoophyte: {
+          partOfSpeech: 'noun',
+          definition: 'An invertebrate marine animal, such as a coral or sea anemone, that closely resembles a plant in appearance.',
+          sentence1: 'Early naturalists classified the branching red coral as a zoophyte because it grew rooted to the seabed.',
+          sentence2: 'During our marine biology field trip, we observed a colorful zoophyte swaying in the tide pool.'
+        },
+        kinetoscope: {
+          partOfSpeech: 'noun',
+          definition: 'An early motion-picture viewing device invented in the late nineteenth century in which a single viewer looked through a peephole.',
+          sentence1: 'Visitors to the film museum peered into an antique kinetoscope to watch a short silent clip from 1894.',
+          sentence2: 'Before large theater screens existed, the kinetoscope introduced audiences to moving photography.'
+        },
+        kerfuffle: {
+          partOfSpeech: 'noun',
+          definition: 'A noisy commotion, fuss, or minor dispute caused by conflicting views or confusion.',
+          sentence1: 'A brief kerfuffle broke out in the hallway when two clubs tried to reserve the same table.',
+          sentence2: 'The coach quickly calmed the kerfuffle over the referee’s call so the game could resume.'
+        },
+        abnegation: {
+          partOfSpeech: 'noun',
+          definition: 'The act of renouncing, rejecting, or denying oneself a personal desire, privilege, or claim.',
+          sentence1: 'Her voluntary abnegation of the championship prize showed remarkable sportsmanship.',
+          sentence2: 'The novel explores themes of personal sacrifice and complete abnegation for the common good.'
+        },
+        fecundity: {
+          partOfSpeech: 'noun',
+          definition: 'The capacity to produce abundant offspring, crops, or creative ideas; intellectual or natural fruitfulness.',
+          sentence1: 'Farmers praised the remarkable fecundity of the river valley’s rich volcanic soil.',
+          sentence2: 'Critics admired the author’s literary fecundity after she published four acclaimed novels in five years.'
+        },
+        fulminate: {
+          partOfSpeech: 'verb',
+          definition: 'To express vehement protest, fiery condemnation, or thunderous criticism against something.',
+          sentence1: 'The editorial continued to fulminate against the unfair zoning ordinance all week.',
+          sentence2: 'Instead of offering solutions, the speaker began to fulminate from the podium.'
+        },
+        garrulous: {
+          partOfSpeech: 'adjective',
+          definition: 'Excessively talkative, especially about trivial or everyday matters.',
+          sentence1: 'Our garrulous neighbor shared stories on the front porch for nearly two hours.',
+          sentence2: 'Normally quiet during morning class, Leo became surprisingly garrulous after winning the science fair.'
+        },
+        harbinger: {
+          partOfSpeech: 'noun',
+          definition: 'A person or sign that announces or signals the approach of something to come.',
+          sentence1: 'The return of migratory robins is often welcomed as a cheerful harbinger of spring.',
+          sentence2: 'Darkening clouds on the western horizon served as an unmistakable harbinger of the approaching storm.'
+        },
+        laconic: {
+          partOfSpeech: 'adjective',
+          definition: 'Using very few words; concise to the point of seeming blunt or mysterious.',
+          sentence1: 'Asked how the difficult expedition went, the mountaineer gave a laconic reply: "We made it."',
+          sentence2: 'His laconic writing style packed deep emotion into just a handful of carefully chosen words.'
+        },
+        languor: {
+          partOfSpeech: 'noun',
+          definition: 'A state of pleasant tiredness, dreamy stillness, or lack of physical energy.',
+          sentence1: 'The humid August afternoon settled over the quiet town in a heavy languor.',
+          sentence2: 'After finishing final exams, Maya relaxed in the hammock with a feeling of peaceful languor.'
+        },
+        locution: {
+          partOfSpeech: 'noun',
+          definition: 'A particular word, phrase, or distinctive style of speech used by a person or group.',
+          sentence1: 'The professor’s formal locution made even everyday announcements sound like a lecture.',
+          sentence2: 'Translators studied every regional locution in the manuscript to preserve its authentic voice.'
+        },
+        oblique: {
+          partOfSpeech: 'adjective',
+          definition: 'Slanting or angled rather than perpendicular, or expressed indirectly without stating something outright.',
+          sentence1: 'Instead of answering directly, the witness offered an oblique hint about what happened.',
+          sentence2: 'Late afternoon sunlight cast long, oblique shadows across the gymnasium floor.'
+        },
+        onerous: {
+          partOfSpeech: 'adjective',
+          definition: 'Involving a heavy burden of effort, responsibility, or difficulty that feels oppressive.',
+          sentence1: 'Cataloging every artifact in the basement archive proved to be an onerous task.',
+          sentence2: 'Small business owners complained that the new paperwork requirements were unnecessarily onerous.'
+        },
+        rapacious: {
+          partOfSpeech: 'adjective',
+          definition: 'Aggressively greedy or grasping, especially for wealth, power, or resources.',
+          sentence1: 'The historical drama depicted a rapacious ruler who taxed the villages beyond endurance.',
+          sentence2: 'Conservationists warned against rapacious logging practices that threatened the old-growth forest.'
+        },
+        sacrilege: {
+          partOfSpeech: 'noun',
+          definition: 'A violation, misuse, or disrespectful treatment of something regarded as sacred or deeply revered.',
+          sentence1: 'To dedicated bibliophiles, folding down the corners of rare library pages is pure sacrilege.',
+          sentence2: 'The ancient temple inscription warned that removing artifacts from the shrine was considered sacrilege.'
+        },
+        serendipity: {
+          partOfSpeech: 'noun',
+          definition: 'The occurrence of finding valuable, agreeable, or fortunate things by happy chance.',
+          sentence1: 'By pure serendipity, she discovered an out-of-print edition of her favorite book at a yard sale.',
+          sentence2: 'Many famous scientific breakthroughs began with a moment of unexpected serendipity in the laboratory.'
+        },
+        taciturn: {
+          partOfSpeech: 'adjective',
+          definition: 'Habitually reserved or uncommunicative in speech; saying very little.',
+          sentence1: 'Although the ship captain was taciturn, his crew trusted his calm judgment in rough seas.',
+          sentence2: 'The taciturn detective listened quietly while everyone else in the room debated the clues.'
+        },
+        thrombosis: {
+          partOfSpeech: 'noun',
+          definition: 'The medical formation of a blood clot inside a blood vessel, obstructing normal circulation.',
+          sentence1: 'Doctors explained how regular movement during long flights helps reduce the risk of thrombosis.',
+          sentence2: 'The hematology lecture focused on preventing arterial thrombosis through early diagnosis.'
+        },
+        ubiquitous: {
+          partOfSpeech: 'adjective',
+          definition: 'Present, appearing, or found seemingly everywhere at the same time.',
+          sentence1: 'Reusable water bottles have become ubiquitous on middle school campuses across the country.',
+          sentence2: 'During cherry blossom season, pale pink petals are ubiquitous along the city’s sidewalks.'
+        },
+        usurp: {
+          partOfSpeech: 'verb',
+          definition: 'To seize a position of power, authority, or right illegally or by force.',
+          sentence1: 'In the play, the ambitious advisor plots to usurp the throne while the king is away.',
+          sentence2: 'Committee bylaws prevent any single member from attempting to usurp the chairperson’s duties.'
+        },
+        vicarious: {
+          partOfSpeech: 'adjective',
+          definition: 'Experienced in the imagination through the feelings or actions of another person rather than directly.',
+          sentence1: 'Reading travel journals gave him a vicarious thrill of exploring uncharted mountain peaks.',
+          sentence2: 'Parents cheered from the bleachers, sharing a vicarious sense of triumph as the relay team crossed the line.'
+        },
+        visceral: {
+          partOfSpeech: 'adjective',
+          definition: 'Relating to deep inward feelings rather than to the intellect; instinctive and deeply felt.',
+          sentence1: 'The thunderous drumline produced a visceral excitement throughout the entire stadium.',
+          sentence2: 'Her painting evoked a visceral reaction from viewers before they even read the title card.'
+        },
+        wizened: {
+          partOfSpeech: 'adjective',
+          definition: 'Shriveled or wrinkled with age, dryness, or weathering.',
+          sentence1: 'The wizened olive tree in the courtyard had survived for more than three centuries.',
+          sentence2: 'A wizened clockmaker adjusted the tiny brass gears with steady, practiced hands.'
+        },
+        zephyr: {
+          partOfSpeech: 'noun',
+          definition: 'A soft, gentle breeze, especially one blowing from the west.',
+          sentence1: 'A cool evening zephyr rustled the curtains after a warm afternoon.',
+          sentence2: 'Sailors welcomed the steady zephyr that filled the canvas sails across the harbor.'
+        },
+        zygote: {
+          partOfSpeech: 'noun',
+          definition: 'The single fertilized cell formed by the union of two reproductive cells at the start of development.',
+          sentence1: 'In biology class, we traced how a single zygote divides repeatedly to form a complex organism.',
+          sentence2: 'The textbook diagram illustrated the genetic combination present inside a newly formed zygote.'
+        },
+        glaciology: {
+          partOfSpeech: 'noun',
+          definition: 'The scientific study of ice masses, snowfields, and the natural processes that shape frozen landscapes.',
+          sentence1: 'Her graduate research in glaciology took her to polar ice caps to measure seasonal melting.',
+          sentence2: 'Advances in glaciology help climate scientists reconstruct atmospheric records from ancient ice cores.'
+        },
+        gynecologist: {
+          partOfSpeech: 'noun',
+          definition: 'A physician who specializes in women’s reproductive health and medical care.',
+          sentence1: 'She scheduled an annual wellness appointment with her gynecologist before starting college.',
+          sentence2: 'The medical panel included a pediatrician, a cardiologist, and an experienced gynecologist.'
+        },
+        isosceles: {
+          partOfSpeech: 'adjective',
+          definition: 'Having two sides of equal length, used to describe a specific type of triangle or trapezoid.',
+          sentence1: 'Because the roof truss formed an isosceles triangle, its two base angles were identical.',
+          sentence2: 'Students used a compass and straightedge to construct an isosceles triangle on graph paper.'
+        },
+        kleptomaniac: {
+          partOfSpeech: 'noun',
+          definition: 'A person with a recurrent, irresistible urge to steal items that are typically not needed for personal use or value.',
+          sentence1: 'The mystery novel featured a wealthy kleptomaniac who compulsively pocketed ordinary silver spoons.',
+          sentence2: 'Psychologists distinguish between calculated theft and the compulsive behavior of a kleptomaniac.'
+        },
+        knickers: {
+          partOfSpeech: 'noun',
+          definition: 'Loose-fitting trousers gathered at the knee, historically worn for outdoor sports or golf.',
+          sentence1: 'Vintage photographs showed early golfers wearing tweed jackets and matching wool knickers.',
+          sentence2: 'The costume designer tailored a pair of corduroy knickers for the nineteenth-century stage play.'
+        },
+        lichen: {
+          partOfSpeech: 'noun',
+          definition: 'A slow-growing composite organism formed by algae and fungi living together on rocks, bark, or soil.',
+          sentence1: 'Crusty patches of pale green lichen covered the granite boulders along the mountain trail.',
+          sentence2: 'Ecologists monitor sensitive species of lichen as natural indicators of clean forest air.'
+        },
+        lynx: {
+          partOfSpeech: 'noun',
+          definition: 'A medium-sized wild cat with tufted ears, a short tail, and thick fur adapted to northern forests.',
+          sentence1: 'Fresh paw prints in the deep snow revealed that a Canada lynx had crossed the ridge at dawn.',
+          sentence2: 'With its broad, furry paws acting like snowshoes, the lynx hunts effortlessly in winter.'
+        },
+        manorial: {
+          partOfSpeech: 'adjective',
+          definition: 'Relating to a large landed estate or the feudal system of medieval country households.',
+          sentence1: 'Historians studied manorial records to learn how crops were rotated during the Middle Ages.',
+          sentence2: 'The stone gatehouse still reflected the grand manorial architecture of the sixteenth century.'
+        },
+        muscatel: {
+          partOfSpeech: 'noun',
+          definition: 'A sweet, aromatic fortified dessert wine or the fragrant grape variety used to produce it.',
+          sentence1: 'The vineyard harvested golden muscatel grapes late in autumn when their natural sweetness peaked.',
+          sentence2: 'Raisins dried from muscatel grapes added a rich aroma to the holiday fruitcake.'
+        },
+        monition: {
+          partOfSpeech: 'noun',
+          definition: 'A formal warning, caution, or legal notice advising someone to correct an action.',
+          sentence1: 'The court issued a formal monition reminding both parties to observe the filing deadline.',
+          sentence2: 'She heeded her mentor’s gentle monition about double-checking every source before publication.'
+        },
+        monitory: {
+          partOfSpeech: 'adjective',
+          definition: 'Serving to warn, caution, or admonish against a potential mistake or danger.',
+          sentence1: 'The lighthouse beam served a vital monitory purpose along the rocky coastline.',
+          sentence2: 'He raised a monitory finger to remind the class to lower their voices in the library.'
+        },
+        quasar: {
+          partOfSpeech: 'noun',
+          definition: 'An extremely luminous galactic core powered by a supermassive black hole in the distant universe.',
+          sentence1: 'Astronomers analyzed the radio waves emitted by a distant quasar billions of light-years away.',
+          sentence2: 'Despite appearing like a faint star in early telescopes, a quasar outshines an entire galaxy.'
+        },
+        quicksilver: {
+          partOfSpeech: 'noun',
+          definition: 'The heavy, silvery liquid metallic element mercury, or something marked by rapid, unpredictable change.',
+          sentence1: 'Antique barometers relied on a slender column of quicksilver to measure atmospheric pressure.',
+          sentence2: 'Reviewers praised the actor’s quicksilver wit during the live comedy improvisation.'
+        },
+        rhapsody: {
+          partOfSpeech: 'noun',
+          definition: 'An intensely emotional, free-flowing musical composition or an expression of enthusiastic praise.',
+          sentence1: 'The pianist performed a sweeping Hungarian rhapsody that brought the audience to its feet.',
+          sentence2: 'Travelers spoke in rhapsody about the golden sunset over the canyon rim.'
+        },
+        salmonella: {
+          partOfSpeech: 'noun',
+          definition: 'A rod-shaped bacterium that can contaminate food and cause digestive illness.',
+          sentence1: 'Thoroughly cooking poultry and washing cutting boards prevents the spread of salmonella.',
+          sentence2: 'Public health inspectors traced the outbreak back to improper refrigeration that allowed salmonella to multiply.'
+        },
+        telekinesis: {
+          partOfSpeech: 'noun',
+          definition: 'The supposed ability to move or levitate physical objects solely through mental power without physical contact.',
+          sentence1: 'In the science-fiction story, the young protagonist discovered she could lift books using telekinesis.',
+          sentence2: 'Magicians often use invisible threads to create the stage illusion of telekinesis.'
+        },
+        thesaurus: {
+          partOfSpeech: 'noun',
+          definition: 'A reference book or digital tool that lists words grouped together according to similarity of meaning.',
+          sentence1: 'To avoid repeating the word "good" in her essay, Elena consulted a thesaurus for stronger adjectives.',
+          sentence2: 'A well-organized thesaurus helps writers find the exact shade of meaning they want to convey.'
+        },
+        viscous: {
+          partOfSpeech: 'adjective',
+          definition: 'Having a thick, sticky, syrupy consistency that resists flowing easily.',
+          sentence1: 'Cold maple syrup is much more viscous than warm syrup poured fresh from the stove.',
+          sentence2: 'In chemistry lab, we timed how fast a marble sank through three different viscous liquids.'
+        },
+        wainscot: {
+          partOfSpeech: 'noun',
+          definition: 'Wooden paneling or boarding installed along the lower portion of an interior room wall.',
+          sentence1: 'The dining room featured oak wainscot painted a crisp cream color beneath patterned wallpaper.',
+          sentence2: 'Carpenters restored the original mahogany wainscot in the historic courthouse lobby.'
+        },
+        youthless: {
+          partOfSpeech: 'adjective',
+          definition: 'Lacking young people or devoid of the energy, freshness, or vitality associated with being young.',
+          sentence1: 'After most graduates moved away for work, the quiet mining town felt oddly youthless.',
+          sentence2: 'The poem contrasted the lively spring meadow with a bleak, youthless winter landscape.'
+        },
+        zeppelin: {
+          partOfSpeech: 'noun',
+          definition: 'A large rigid-framed airship from the early twentieth century propelled by engines and lifted by gas.',
+          sentence1: 'Crowds gathered on rooftops in 1929 to watch the silver zeppelin glide silently overhead.',
+          sentence2: 'An internal aluminum framework gave the giant zeppelin its streamlined cylindrical shape.'
+        }
+      };
+
+      /**
+       * ============================================================================
+       * 3. STORAGE KEYS & APPLICATION STATE
+       * ============================================================================
+       */
+      const STORAGE_KEYS = {
+        CACHE: 'sb8_lexicon_cache_v2',
+        STATS: 'sb8_student_stats_v2',
+        PREFS: 'sb8_user_prefs_v2'
+      };
+
+      let lexiconCache = loadJsonStorage(STORAGE_KEYS.CACHE, {});
+      let studentStats = loadJsonStorage(STORAGE_KEYS.STATS, {
+        practicedCount: 0,
+        firstTryCorrect: 0,
+        firstTryAttempts: 0,
+        streak: 0,
+        masteredWords: [],
+        missedWords: []
+      });
+      let userPrefs = loadJsonStorage(STORAGE_KEYS.PREFS, {
+        audioMode: 'auto',      // 'auto' | 'cloud' | 'device'
+        speechRate: 0.95,
+        autoPronounce: true,
+        soundFx: true
+      });
+
+      let state = {
+        filterMode: 'ALL',         // 'ALL' | 'MISSED' | 'A'..'Z'
+        deck: [],                  // Shuffled array of { word, letter }
+        currentIndex: 0,
+        wordStatus: 'pending',     // 'pending' | 'correct' | 'incorrect' | 'revealed'
+        showSentence1Text: false,
+        showSentence2Text: false,
+        showDefinitionText: false,
+        currentLexicon: null,      // { partOfSpeech, definition, sentence1, sentence2, audioUrl }
+        pendingAction: null,       // 'sentence1' | 'sentence2' | 'definition' | null
+        usVoices: [],
+        audioUnlocked: false,
+        playbackToken: 0,
+        confirmResetArmed: false
+      };
+
+      const inFlightRequests = new Map();
+
+      function loadJsonStorage(key, fallback) {
+        try {
+          const raw = localStorage.getItem(key);
+          return raw ? { ...fallback, ...JSON.parse(raw) } : fallback;
+        } catch {
+          return fallback;
+        }
+      }
+
+      function saveLexiconCache() {
+        try {
+          localStorage.setItem(STORAGE_KEYS.CACHE, JSON.stringify(lexiconCache));
+        } catch {
+          // Ignore storage quota limits
+        }
+      }
+
+      function saveStudentStats() {
+        try {
+          localStorage.setItem(STORAGE_KEYS.STATS, JSON.stringify(studentStats));
+        } catch {
+          // Ignore storage errors
+        }
+      }
+
+      function saveUserPrefs() {
+        try {
+          localStorage.setItem(STORAGE_KEYS.PREFS, JSON.stringify(userPrefs));
+        } catch {
+          // Ignore storage errors
+        }
+      }
+
+      /**
+       * ============================================================================
+       * 4. FISHER-YATES SHUFFLE & DECK MANAGEMENT
+       * ============================================================================
+       */
+      function fisherYatesShuffle(array) {
+        const arr = array.slice();
+        for (let i = arr.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+      }
+
+      function buildDeck(mode, preserveOrder = false) {
+        let pool = [];
+        if (mode === 'ALL') {
+          pool = ALL_WORDS.slice();
+        } else if (mode === 'MISSED') {
+          const missedSet = new Set(studentStats.missedWords);
+          pool = ALL_WORDS.filter((item) => missedSet.has(item.word));
+        } else if (WORD_BANK[mode]) {
+          pool = WORD_BANK[mode].map((w) => ({ word: w, letter: mode }));
+        }
+        state.deck = preserveOrder ? pool : fisherYatesShuffle(pool);
+        state.currentIndex = 0;
+      }
+
+      /**
+       * ============================================================================
+       * 5. CLIENT-SIDE DEFINITION SCRUBBER & SENTENCE MASKING HELPERS
+       * ============================================================================
+       */
+      function escapeRegex(str) {
+        return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      }
+
+      function sanitizeDefinition(rawDefinition, targetWord) {
+        if (!rawDefinition || typeof rawDefinition !== 'string') {
+          return 'An official vocabulary term from the 8th-grade Spelling Bee competition list.';
+        }
+
+        const cleanWord = targetWord.trim().toLowerCase();
+        const patterns = new Set();
+
+        // 1. Exact target word and standard inflections
+        patterns.add(`\\b${escapeRegex(cleanWord)}(s|es|ed|ing|ly|er|or|ion|tion|ation|ity|ness|ment|ous|ive|able|ible|al|y)?\\b`);
+
+        // 2. Root/stem derivations for words >= 5 characters
+        if (cleanWord.length >= 5) {
+          const stripped = cleanWord.replace(/(ation|ition|tion|sion|ment|ness|ance|ence|able|ible|ious|eous|ous|ive|ing|ed|ly|al|ic|er|or|y|e|s)$/, '');
+          if (stripped.length >= 5) {
+            patterns.add(`\\b${escapeRegex(stripped)}[a-z]*\\b`);
+          } else if (stripped.length === 4 && cleanWord.length <= 6) {
+            patterns.add(`\\b${escapeRegex(stripped)}(e|es|ed|ing|ly|er|or|y|s|ion|al|ous|ive)?\\b`);
+          }
+        }
+
+        let sanitized = rawDefinition;
+        patterns.forEach((patternStr) => {
+          const regex = new RegExp(patternStr, 'gi');
+          sanitized = sanitized.replace(regex, (match, offset) => {
+            const prefix = sanitized.slice(0, offset);
+            const atSentenceStart = offset === 0 || /[.!?]\s+$/.test(prefix);
+            return atSentenceStart ? 'This term' : 'this term';
+          });
+        });
+
+        sanitized = sanitized.replace(/\b(a|an)\s+this term\b/gi, (m, article, offset) => {
+          const atStart = offset === 0 || /[.!?]\s+$/.test(sanitized.slice(0, offset));
+          return atStart ? 'This term' : 'this term';
+        });
+
+        return sanitized.trim();
+      }
+
+      function maskWordInSentence(sentence, targetWord) {
+        if (!sentence || !targetWord) return sentence || '';
+        const regex = new RegExp(`\\b${escapeRegex(targetWord)}\\b`, 'gi');
+        return sentence.replace(regex, '______');
+      }
+
+      function renderSentenceBoxes() {
+        const item = getCurrentItem();
+        if (!item || !state.currentLexicon) return;
+
+        const shouldMask = state.wordStatus === 'pending';
+        const s1Text = shouldMask
+          ? maskWordInSentence(state.currentLexicon.sentence1, item.word)
+          : state.currentLexicon.sentence1;
+        const s2Text = shouldMask
+          ? maskWordInSentence(state.currentLexicon.sentence2, item.word)
+          : state.currentLexicon.sentence2;
+
+        document.getElementById('sentence1TextContainer').textContent = s1Text;
+        document.getElementById('sentence2TextContainer').textContent = s2Text;
+      }
+
+      /**
+       * ============================================================================
+       * 6. KEYLESS DICTIONARY API + CURATED OFFLINE LEXICON + SMART SYNTHESIZER
+       * ============================================================================
+       */
+      function synthesizeOfflineLexicon(word) {
+        const lower = word.toLowerCase();
+        let pos = 'vocabulary';
+        let def = 'A formal English term from the 8th-grade competition list used in academic writing and speech.';
+
+        if (lower.endsWith('ly') && lower.length > 5) {
+          pos = 'adverb';
+          def = 'In a manner or degree that describes how an action is carried out or observed.';
+        } else if (/(tion|sion|ment|ness|ity|ance|ence|ism|ist|ogy)$/.test(lower)) {
+          pos = 'noun';
+          def = 'A state, condition, concept, or specialized field of study recognized in formal English.';
+        } else if (/(ous|ious|eous|able|ible|ive|ic|al|ful|less|ent|ant)$/.test(lower)) {
+          pos = 'adjective';
+          def = 'Having a distinctive quality, characteristic, or trait used to describe a person, object, or idea.';
+        } else if (/(ize|ise|ate|ify|en)$/.test(lower) && lower.length > 5) {
+          pos = 'verb';
+          def = 'To perform an action, bring about a specific change, or carry out a deliberate process.';
+        }
+
+        const templates1 = [
+          `During the regional championship, the contestant paused briefly before spelling ${word} aloud.`,
+          `Our language arts teacher highlighted ${word} as an important term to master before Friday’s match.`,
+          `In formal writing, choosing the exact term ${word} makes an explanation far more precise.`
+        ];
+        const templates2 = [
+          `She listened carefully to how the judge pronounced ${word} before writing down each letter.`,
+          `Reviewing the origin and syllables of ${word} helped the finalists avoid common spelling traps.`,
+          `The editorial team verified the spelling of ${word} prior to printing the final edition.`
+        ];
+
+        // Deterministic pick based on word length & first char code so sentences feel varied
+        const hash = word.length + word.charCodeAt(0);
+        return {
+          partOfSpeech: pos,
+          definition: sanitizeDefinition(def, word),
+          sentence1: templates1[hash % templates1.length],
+          sentence2: templates2[(hash + 1) % templates2.length],
+          audioUrl: ''
+        };
+      }
+
+      async function fetchFromDictionaryApi(word) {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 4500);
+
+        try {
+          const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`, {
+            signal: controller.signal
+          });
+          clearTimeout(timer);
+
+          if (!res.ok) {
+            throw new Error(`HTTP ${res.status}`);
+          }
+
+          const data = await res.json();
+          const entry = data?.[0];
+          if (!entry) throw new Error('No entry');
+
+          // Look for an American English MP3 recording (-us.mp3 or 'us' in filename)
+          let usAudioUrl = '';
+          const phonetics = entry.phonetics || [];
+          const usPhonetic = phonetics.find((p) => p.audio && /[-_]us\.mp3$/i.test(p.audio))
+            || phonetics.find((p) => p.audio && /us/i.test(p.audio));
+          if (usPhonetic && usPhonetic.audio) {
+            usAudioUrl = usPhonetic.audio.startsWith('//') ? `https:${usPhonetic.audio}` : usPhonetic.audio;
+          }
+
+          // Merge with curated entry if present, otherwise use API definition + examples
+          const curated = CURATED_LEXICON[word.toLowerCase()];
+          if (curated) {
+            return {
+              ...curated,
+              definition: sanitizeDefinition(curated.definition, word),
+              audioUrl: usAudioUrl
+            };
+          }
+
+          const firstMeaning = entry.meanings?.[0];
+          const partOfSpeech = (firstMeaning?.partOfSpeech || 'vocabulary').toLowerCase();
+          const rawDef = firstMeaning?.definitions?.[0]?.definition
+            || 'A formal English term from the 8th-grade competition list.';
+
+          const examples = [];
+          (entry.meanings || []).forEach((m) => {
+            (m.definitions || []).forEach((d) => {
+              if (d.example && new RegExp(`\\b${escapeRegex(word)}\\b`, 'i').test(d.example)) {
+                examples.push(d.example.trim());
+              }
+            });
+          });
+
+          const fallbackSynth = synthesizeOfflineLexicon(word);
+          return {
+            partOfSpeech,
+            definition: sanitizeDefinition(rawDef, word),
+            sentence1: examples[0] || fallbackSynth.sentence1,
+            sentence2: examples[1] || fallbackSynth.sentence2,
+            audioUrl: usAudioUrl
+          };
+        } catch (err) {
+          clearTimeout(timer);
+          throw err;
+        }
+      }
+
+      async function getWordLexicon(word) {
+        const key = word.toLowerCase();
+
+        // 1. Return cached entry immediately
+        if (lexiconCache[key]) {
+          lexiconCache[key].definition = sanitizeDefinition(lexiconCache[key].definition, word);
+          return lexiconCache[key];
+        }
+
+        // 2. Deduplicate in-flight requests
+        if (inFlightRequests.has(key)) {
+          return inFlightRequests.get(key);
+        }
+
+        const promise = (async () => {
+          try {
+            const fetched = await fetchFromDictionaryApi(word);
+            lexiconCache[key] = fetched;
+            saveLexiconCache();
+            return fetched;
+          } catch {
+            // Use curated offline entry if available, otherwise smart synthesizer
+            const offlineEntry = CURATED_LEXICON[key]
+              ? { ...CURATED_LEXICON[key], definition: sanitizeDefinition(CURATED_LEXICON[key].definition, word), audioUrl: '' }
+              : synthesizeOfflineLexicon(word);
+            lexiconCache[key] = offlineEntry;
+            saveLexiconCache();
+            return offlineEntry;
+          } finally {
+            inFlightRequests.delete(key);
+          }
+        })();
+
+        inFlightRequests.set(key, promise);
+        return promise;
+      }
+
+      function prefetchUpcomingWords(startIndex) {
+        [1, 2, 3].forEach((offset) => {
+          const nextItem = state.deck[startIndex + offset];
+          if (nextItem && !lexiconCache[nextItem.word.toLowerCase()]) {
+            getWordLexicon(nextItem.word).catch(() => {});
+          }
+        });
+      }
+
+      /**
+       * ============================================================================
+       * 7. MULTI-LAYER AMERICAN ENGLISH (en-US) CLOUD MP3 + OFFLINE AUDIO ENGINE
+       * Works on Spanish-locale Windows, iOS Safari, Android Chrome & Google Sites!
+       * ============================================================================
+       */
+      const playerAudio = new Audio();
+      playerAudio.preload = 'auto';
+
+      function unlockAudioOnGesture() {
+        if (state.audioUnlocked) return;
+        state.audioUnlocked = true;
+        try {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) {
+            const ctx = new AudioCtx();
+            if (ctx.state === 'suspended') {
+              ctx.resume().catch(() => {});
+            }
+          }
+        } catch {
+          // Ignore AudioContext errors
+        }
+      }
+
+      function populateDeviceVoices() {
+        if (!('speechSynthesis' in window)) return;
+        const allVoices = window.speechSynthesis.getVoices();
+        if (!allVoices.length) return;
+
+        let usVoices = allVoices.filter((v) => {
+          const lang = (v.lang || '').toLowerCase().replace('_', '-');
+          return lang === 'en-us' || lang.startsWith('en-us-');
+        });
+
+        if (!usVoices.length) {
+          usVoices = allVoices.filter((v) => (v.lang || '').toLowerCase().startsWith('en'));
+        }
+
+        const priorityTerms = ['google us english', 'aria', 'jenny', 'guy', 'ava', 'samantha', 'alex', 'natural', 'neural'];
+        usVoices.sort((a, b) => {
+          const aScore = priorityTerms.findIndex((t) => a.name.toLowerCase().includes(t));
+          const bScore = priorityTerms.findIndex((t) => b.name.toLowerCase().includes(t));
+          return (aScore === -1 ? 999 : aScore) - (bScore === -1 ? 999 : bScore);
+        });
+
+        state.usVoices = usVoices;
+      }
+
+      function stopAllAudio() {
+        state.playbackToken += 1;
+        try {
+          playerAudio.pause();
+          playerAudio.removeAttribute('src');
+          playerAudio.load();
+        } catch {
+          // Ignore reset errors
+        }
+
+        if ('speechSynthesis' in window) {
+          try {
+            window.speechSynthesis.cancel();
+          } catch {
+            // Ignore synthesis cancel errors
+          }
+        }
+
+        updateAudioStatusUI('idle', '');
+      }
+
+      function updateAudioStatusUI(status, detailLabel) {
+        const connEl = document.getElementById('audioConnectingIndicator');
+        const speakEl = document.getElementById('speakingIndicator');
+        const connText = document.getElementById('connectingLabel');
+        const speakText = document.getElementById('speakingLabel');
+
+        if (status === 'connecting') {
+          connText.textContent = detailLabel || 'Connecting audio...';
+          connEl.classList.remove('hidden');
+          connEl.classList.add('inline-flex');
+          speakEl.classList.add('hidden');
+          speakEl.classList.remove('inline-flex');
+        } else if (status === 'speaking') {
+          speakText.textContent = detailLabel || 'Speaking (US Accent)';
+          speakEl.classList.remove('hidden');
+          speakEl.classList.add('inline-flex');
+          connEl.classList.add('hidden');
+          connEl.classList.remove('inline-flex');
+        } else {
+          connEl.classList.add('hidden');
+          connEl.classList.remove('inline-flex');
+          speakEl.classList.add('hidden');
+          speakEl.classList.remove('inline-flex');
+        }
+      }
+
+      /**
+       * Splits long definitions or sentences cleanly into <=165 char chunks
+       * at sentence, clause, or word boundaries so cloud MP3 endpoints never truncate.
+       */
+      function chunkTextForAudio(text, maxLen = 165) {
+        const cleaned = text.replace(/\s+/g, ' ').trim();
+        if (cleaned.length <= maxLen) return [cleaned];
+
+        const chunks = [];
+        let remaining = cleaned;
+
+        while (remaining.length > maxLen) {
+          let slicePoint = -1;
+          const windowStr = remaining.slice(0, maxLen + 1);
+
+          // 1. Prefer sentence boundary (. ! ?)
+          for (let i = maxLen; i >= 50; i--) {
+            if ('.!?'.includes(windowStr[i]) && (i === maxLen || windowStr[i + 1] === ' ')) {
+              slicePoint = i + 1;
+              break;
+            }
+          }
+
+          // 2. Next prefer clause boundary (, ; :)
+          if (slicePoint === -1) {
+            for (let i = maxLen; i >= 50; i--) {
+              if (',;:'.includes(windowStr[i]) && (i === maxLen || windowStr[i + 1] === ' ')) {
+                slicePoint = i + 1;
+                break;
+              }
+            }
+          }
+
+          // 3. Otherwise split at last whitespace
+          if (slicePoint === -1) {
+            slicePoint = windowStr.lastIndexOf(' ');
+          }
+          if (slicePoint <= 0) {
+            slicePoint = maxLen;
+          }
+
+          chunks.push(remaining.slice(0, slicePoint).trim());
+          remaining = remaining.slice(slicePoint).trim();
+        }
+
+        if (remaining.length > 0) {
+          chunks.push(remaining);
+        }
+
+        return chunks;
+      }
+
+      /**
+       * Plays a single MP3 URL via the shared HTMLAudioElement with a 3.5s stall timeout.
+       * Switches UI to "Speaking (US Accent)" ONLY when `onplaying` actually fires.
+       */
+      function playSingleMp3Url(url, token, label) {
+        return new Promise((resolve, reject) => {
+          if (token !== state.playbackToken) {
+            return reject(new Error('cancelled'));
+          }
+
+          let settled = false;
+          let startedPlaying = false;
+
+          const stallTimer = setTimeout(() => {
+            if (!startedPlaying && !settled) {
+              settled = true;
+              cleanup();
+              reject(new Error('stall_timeout'));
+            }
+          }, 3500);
+
+          function cleanup() {
+            clearTimeout(stallTimer);
+            playerAudio.onplaying = null;
+            playerAudio.onended = null;
+            playerAudio.onerror = null;
+          }
+
+          playerAudio.onplaying = () => {
+            if (token !== state.playbackToken) {
+              cleanup();
+              return;
+            }
+            startedPlaying = true;
+            clearTimeout(stallTimer);
+            // Hide any previous blocked-audio warning since playback succeeded!
+            document.getElementById('audioBlockedBanner').classList.add('hidden');
+            updateAudioStatusUI('speaking', label);
+          };
+
+          playerAudio.onended = () => {
+            if (settled) return;
+            settled = true;
+            cleanup();
+            resolve();
+          };
+
+          playerAudio.onerror = () => {
+            if (settled) return;
+            settled = true;
+            cleanup();
+            reject(new Error('audio_error'));
+          };
+
+          try {
+            playerAudio.src = url;
+            playerAudio.playbackRate = userPrefs.speechRate || 0.95;
+            const playPromise = playerAudio.play();
+            if (playPromise && typeof playPromise.catch === 'function') {
+              playPromise.catch((err) => {
+                if (!settled) {
+                  settled = true;
+                  cleanup();
+                  reject(err);
+                }
+              });
+            }
+          } catch (err) {
+            if (!settled) {
+              settled = true;
+              cleanup();
+              reject(err);
+            }
+          }
+        });
+      }
+
+      /**
+       * Plays a sequence of MP3 URLs (one per chunk) back-to-back.
+       */
+      async function playMp3Sequence(urls, token, label) {
+        for (const url of urls) {
+          if (token !== state.playbackToken) throw new Error('cancelled');
+          await playSingleMp3Url(url, token, label);
+        }
+      }
+
+      /**
+       * Layer 4: Offline Browser SpeechSynthesis Fallback
+       * Fixes Chrome's cancel() bug (60ms gap + resume()) and picks en-US/en voice if present.
+       */
+      function playDeviceSpeechSynthesis(text, token, label) {
+        return new Promise((resolve, reject) => {
+          if (!('speechSynthesis' in window)) {
+            return reject(new Error('no_speech_synthesis'));
+          }
+
+          try {
+            window.speechSynthesis.cancel();
+          } catch {
+            // Ignore cancel error
+          }
+
+          setTimeout(() => {
+            if (token !== state.playbackToken) return reject(new Error('cancelled'));
+
+            populateDeviceVoices();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+            utterance.rate = userPrefs.speechRate || 0.95;
+            utterance.pitch = 1.0;
+
+            if (state.usVoices.length > 0) {
+              utterance.voice = state.usVoices[0];
+            }
+
+            let started = false;
+            const startGuard = setTimeout(() => {
+              if (!started) {
+                reject(new Error('synthesis_silent_timeout'));
+              }
+            }, 2500);
+
+            utterance.onstart = () => {
+              if (token !== state.playbackToken) return;
+              started = true;
+              clearTimeout(startGuard);
+              document.getElementById('audioBlockedBanner').classList.add('hidden');
+              updateAudioStatusUI('speaking', `${label} (Device)`);
+            };
+
+            utterance.onend = () => {
+              clearTimeout(startGuard);
+              resolve();
+            };
+
+            utterance.onerror = () => {
+              clearTimeout(startGuard);
+              reject(new Error('synthesis_error'));
+            };
+
+            window._activeUtterance = utterance;
+            try {
+              window.speechSynthesis.resume();
+              window.speechSynthesis.speak(utterance);
+            } catch (err) {
+              clearTimeout(startGuard);
+              reject(err);
+            }
+          }, 60);
+        });
+      }
+
+      /**
+       * Master Multi-Layer American English Speech Coordinator
+       */
+      async function speakAmerican(text, options = {}) {
+        const {
+          label = 'Speaking (US Accent)',
+          isSingleWord = false,
+          dictionaryMp3Url = '',
+          isAutoPlay = false
+        } = options;
+
+        if (!text || !text.trim()) return;
+
+        stopAllAudio();
+        const token = state.playbackToken;
+        const mode = userPrefs.audioMode || 'auto';
+        const chunks = chunkTextForAudio(text, 165);
+
+        updateAudioStatusUI('connecting', 'Connecting audio...');
+
+        // Layer 1: Human US Dictionary MP3 for Single Words (when available)
+        if (mode !== 'device' && isSingleWord && dictionaryMp3Url) {
+          try {
+            await playSingleMp3Url(dictionaryMp3Url, token, label);
+            if (token === state.playbackToken) updateAudioStatusUI('idle', '');
+            return;
+          } catch (err) {
+            if (err.message === 'cancelled') return;
+          }
+        }
+
+        // Layer 2: Primary American English Cloud MP3 Stream (Youdao type=2 -> en-US)
+        if (mode !== 'device') {
+          try {
+            const youdaoUrls = chunks.map(
+              (c) => `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(c)}&type=2`
+            );
+            await playMp3Sequence(youdaoUrls, token, label);
+            if (token === state.playbackToken) updateAudioStatusUI('idle', '');
+            return;
+          } catch (err) {
+            if (err.message === 'cancelled') return;
+          }
+        }
+
+        // Layer 3: Secondary American English Cloud MP3 Fallback (Google Translate TTS en-US)
+        if (mode !== 'device') {
+          try {
+            const googleUrls = chunks.map(
+              (c) => `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=en-US&q=${encodeURIComponent(c)}`
+            );
+            await playMp3Sequence(googleUrls, token, label);
+            if (token === state.playbackToken) updateAudioStatusUI('idle', '');
+            return;
+          } catch (err) {
+            if (err.message === 'cancelled') return;
+          }
+        }
+
+        // Layer 4: Offline Browser SpeechSynthesis Fallback
+        if (mode !== 'cloud') {
+          try {
+            await playDeviceSpeechSynthesis(text, token, label);
+            if (token === state.playbackToken) updateAudioStatusUI('idle', '');
+            return;
+          } catch (err) {
+            if (err.message === 'cancelled') return;
+          }
+        }
+
+        // All audio layers failed or browser blocked autoplay on initial load
+        if (token === state.playbackToken) {
+          updateAudioStatusUI('idle', '');
+          if (!isAutoPlay) {
+            document.getElementById('audioBlockedBanner').classList.remove('hidden');
+            showToast('Audio could not play in this viewer. Try opening in Chrome or Safari.', 'warning');
+          }
+        }
+      }
+
+      /**
+       * ============================================================================
+       * 8. SUBTLE WEB AUDIO FEEDBACK CHIMES
+       * ============================================================================
+       */
+      function playFeedbackChime(type) {
+        if (!userPrefs.soundFx) return;
+        try {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (!AudioCtx) return;
+          const ctx = new AudioCtx();
+          const now = ctx.currentTime;
+
+          if (type === 'correct') {
+            [523.25, 659.25, 783.99].forEach((freq, idx) => {
+              const osc = ctx.createOscillator();
+              const gain = ctx.createGain();
+              osc.type = 'sine';
+              osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+              gain.gain.setValueAtTime(0.08, now + idx * 0.08);
+              gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.08 + 0.3);
+              osc.connect(gain);
+              gain.connect(ctx.destination);
+              osc.start(now + idx * 0.08);
+              osc.stop(now + idx * 0.08 + 0.33);
+            });
+          } else if (type === 'incorrect') {
+            [261.63, 220.0].forEach((freq, idx) => {
+              const osc = ctx.createOscillator();
+              const gain = ctx.createGain();
+              osc.type = 'triangle';
+              osc.frequency.setValueAtTime(freq, now + idx * 0.12);
+              gain.gain.setValueAtTime(0.07, now + idx * 0.12);
+              gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.12 + 0.28);
+              osc.connect(gain);
+              gain.connect(ctx.destination);
+              osc.start(now + idx * 0.12);
+              osc.stop(now + idx * 0.12 + 0.3);
+            });
+          }
+        } catch {
+          // Ignore Web Audio restrictions
+        }
+      }
+
+      /**
+       * ============================================================================
+       * 9. LETTER-BY-LETTER ALIGNMENT DIFF ENGINE
+       * ============================================================================
+       */
+      function computeLetterDiff(userAttempt, targetWord) {
+        const a = userAttempt.toLowerCase();
+        const b = targetWord.toLowerCase();
+        const m = a.length;
+        const n = b.length;
+
+        const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+        for (let i = m - 1; i >= 0; i--) {
+          for (let j = n - 1; j >= 0; j--) {
+            if (a[i] === b[j]) {
+              dp[i][j] = 1 + dp[i + 1][j + 1];
+            } else {
+              dp[i][j] = Math.max(dp[i + 1][j], dp[i][j + 1]);
+            }
+          }
+        }
+
+        const userCells = [];
+        const targetCells = [];
+        let i = 0;
+        let j = 0;
+
+        while (i < m && j < n) {
+          if (a[i] === b[j]) {
+            userCells.push({ char: userAttempt[i], status: 'match' });
+            targetCells.push({ char: targetWord[j], status: 'match' });
+            i++;
+            j++;
+          } else if (dp[i + 1][j] >= dp[i][j + 1]) {
+            userCells.push({ char: userAttempt[i], status: 'wrong' });
+            targetCells.push({ char: '·', status: 'gap' });
+            i++;
+          } else {
+            userCells.push({ char: '_', status: 'missing' });
+            targetCells.push({ char: targetWord[j], status: 'expected' });
+            j++;
+          }
+        }
+
+        while (i < m) {
+          userCells.push({ char: userAttempt[i], status: 'wrong' });
+          targetCells.push({ char: '·', status: 'gap' });
+          i++;
+        }
+
+        while (j < n) {
+          userCells.push({ char: '_', status: 'missing' });
+          targetCells.push({ char: targetWord[j], status: 'expected' });
+          j++;
+        }
+
+        return { userCells, targetCells };
+      }
+
+      function renderLetterDiff(userAttempt, targetWord) {
+        const container = document.getElementById('letterDiffContainer');
+        const userRow = document.getElementById('diffUserRow');
+        const targetRow = document.getElementById('diffTargetRow');
+
+        const { userCells, targetCells } = computeLetterDiff(userAttempt, targetWord);
+        userRow.innerHTML = '';
+        targetRow.innerHTML = '';
+
+        userCells.forEach((cell) => {
+          const span = document.createElement('span');
+          span.textContent = cell.char;
+          if (cell.status === 'match') {
+            span.className = 'w-7 h-8 rounded-lg bg-emerald-100 text-emerald-900 border border-emerald-300 flex items-center justify-center';
+          } else if (cell.status === 'wrong') {
+            span.className = 'w-7 h-8 rounded-lg bg-rose-100 text-rose-800 border border-rose-300 flex items-center justify-center line-through';
+          } else {
+            span.className = 'w-7 h-8 rounded-lg bg-amber-50 text-amber-700 border border-dashed border-amber-400 flex items-center justify-center';
+          }
+          userRow.appendChild(span);
+        });
+
+        targetCells.forEach((cell) => {
+          const span = document.createElement('span');
+          span.textContent = cell.char;
+          if (cell.status === 'match') {
+            span.className = 'w-7 h-8 rounded-lg bg-emerald-100 text-emerald-900 border border-emerald-300 flex items-center justify-center';
+          } else if (cell.status === 'expected') {
+            span.className = 'w-7 h-8 rounded-lg bg-amber-100 text-amber-950 border border-amber-400 flex items-center justify-center';
+          } else {
+            span.className = 'w-7 h-8 rounded-lg bg-slate-100 text-slate-400 border border-slate-200 flex items-center justify-center';
+          }
+          targetRow.appendChild(span);
+        });
+
+        container.classList.remove('hidden');
+      }
+
+      /**
+       * ============================================================================
+       * 10. STAGE & JUDGE COMMAND WORKFLOW
+       * ============================================================================
+       */
+      function getCurrentItem() {
+        return state.deck[state.currentIndex] || null;
+      }
+
+      function pronounceCurrentWord(isAutoPlay = false) {
+        const item = getCurrentItem();
+        if (!item) return;
+        const cachedAudioUrl = state.currentLexicon?.audioUrl || lexiconCache[item.word.toLowerCase()]?.audioUrl || '';
+        speakAmerican(item.word, {
+          label: 'Speaking Word (US)',
+          isSingleWord: true,
+          dictionaryMp3Url: cachedAudioUrl,
+          isAutoPlay
+        });
+      }
+
+      async function loadCurrentWord(shouldAutoSpeak = true, isInitialLoad = false) {
+        stopAllAudio();
+        const item = getCurrentItem();
+
+        if (!item) {
+          if (state.filterMode === 'MISSED') {
+            showToast('No missed words left! Switching back to All Words (Shuffled).', 'success');
+            state.filterMode = 'ALL';
+            document.getElementById('deckFilterSelect').value = 'ALL';
+            buildDeck('ALL');
+            return loadCurrentWord(shouldAutoSpeak, isInitialLoad);
+          }
+          return;
+        }
+
+        // Reset stage state
+        state.wordStatus = 'pending';
+        state.showSentence1Text = false;
+        state.showSentence2Text = false;
+        state.showDefinitionText = false;
+        state.currentLexicon = null;
+        state.pendingAction = null;
+
+        document.getElementById('stageLetterBadge').textContent = `Letter ${item.letter}`;
+        const posBadge = document.getElementById('stagePosBadge');
+        posBadge.classList.add('hidden');
+        posBadge.textContent = '';
+
+        const missedTag = document.getElementById('stageMissedTag');
+        missedTag.classList.toggle('hidden', !studentStats.missedWords.includes(item.word));
+
+        document.getElementById('mysteryWordState').classList.remove('hidden');
+        document.getElementById('revealedWordState').classList.add('hidden');
+        document.getElementById('letterDiffContainer').classList.add('hidden');
+
+        // Reset Sentence 1 & 2 UI
+        document.getElementById('sentence1TextContainer').classList.add('hidden');
+        document.getElementById('sentence1TextContainer').textContent = '';
+        document.getElementById('sentence1HiddenNote').classList.remove('hidden');
+        document.getElementById('toggleSentence1Label').textContent = 'Show Text';
+
+        document.getElementById('sentence2TextContainer').classList.add('hidden');
+        document.getElementById('sentence2TextContainer').textContent = '';
+        document.getElementById('sentence2HiddenNote').classList.remove('hidden');
+        document.getElementById('toggleSentence2Label').textContent = 'Show Text';
+
+        // Reset Definition UI
+        document.getElementById('definitionTextContainer').classList.add('hidden');
+        document.getElementById('definitionTextContainer').textContent = '';
+        document.getElementById('definitionPlaceholderNote').classList.remove('hidden');
+        document.getElementById('replayDefinitionBtn').classList.add('hidden');
+
+        // Reset Input
+        const input = document.getElementById('spellingInput');
+        input.value = '';
+        input.disabled = false;
+        if (!isInitialLoad) {
+          input.focus();
+        }
+
+        updateStatsAndProgressUI();
+
+        // Speak immediately on word load (works seamlessly after first user interaction)
+        if (shouldAutoSpeak && userPrefs.autoPronounce) {
+          pronounceCurrentWord(isInitialLoad);
+        }
+
+        // Load lexicon entry and prefetch next 3 words
+        const requestedWord = item.word;
+        const lexicon = await getWordLexicon(requestedWord);
+        if (getCurrentItem()?.word !== requestedWord) return;
+
+        state.currentLexicon = lexicon;
+        document.getElementById('judgeLoadingHint').classList.add('hidden');
+        renderSentenceBoxes();
+
+        if (state.pendingAction) {
+          const action = state.pendingAction;
+          state.pendingAction = null;
+          executeJudgeAction(action);
+        }
+
+        prefetchUpcomingWords(state.currentIndex);
+      }
+
+      async function executeJudgeAction(action) {
+        const item = getCurrentItem();
+        if (!item) return;
+
+        if (!state.currentLexicon) {
+          state.pendingAction = action;
+          document.getElementById('judgeLoadingHint').classList.remove('hidden');
+          return;
+        }
+
+        const lex = state.currentLexicon;
+
+        if (action === 'sentence1') {
+          speakAmerican(lex.sentence1, { label: 'Sentence 1 (US)' });
+        } else if (action === 'sentence2') {
+          speakAmerican(lex.sentence2, { label: 'Sentence 2 (US)' });
+        } else if (action === 'definition') {
+          state.showDefinitionText = true;
+          const safeDef = sanitizeDefinition(lex.definition, item.word);
+
+          const posBadge = document.getElementById('stagePosBadge');
+          posBadge.textContent = lex.partOfSpeech;
+          posBadge.classList.remove('hidden');
+
+          const defContainer = document.getElementById('definitionTextContainer');
+          defContainer.textContent = safeDef;
+          defContainer.classList.remove('hidden');
+          document.getElementById('definitionPlaceholderNote').classList.add('hidden');
+          document.getElementById('replayDefinitionBtn').classList.remove('hidden');
+
+          speakAmerican(safeDef, { label: 'Definition (US)' });
+        }
+      }
+
+      function handleCheckSpelling(e) {
+        if (e) e.preventDefault();
+        const item = getCurrentItem();
+        if (!item) return;
+
+        // If already checked or revealed, Enter advances to the next word
+        if (state.wordStatus !== 'pending') {
+          advanceWord(1);
+          return;
+        }
+
+        const input = document.getElementById('spellingInput');
+        const userGuess = input.value.trim();
+
+        if (!userGuess) {
+          showToast('Type your spelling first, or tap the speaker to hear the word again.', 'info');
+          pronounceCurrentWord(false);
+          input.focus();
+          return;
+        }
+
+        const isCorrect = userGuess.toLowerCase() === item.word.toLowerCase();
+
+        studentStats.practicedCount += 1;
+        studentStats.firstTryAttempts += 1;
+
+        if (isCorrect) {
+          state.wordStatus = 'correct';
+          studentStats.firstTryCorrect += 1;
+          studentStats.streak += 1;
+
+          if (!studentStats.masteredWords.includes(item.word)) {
+            studentStats.masteredWords.push(item.word);
+          }
+          studentStats.missedWords = studentStats.missedWords.filter((w) => w !== item.word);
+
+          playFeedbackChime('correct');
+          showRevealedStage(item, 'correct', userGuess);
+        } else {
+          state.wordStatus = 'incorrect';
+          studentStats.streak = 0;
+
+          if (!studentStats.missedWords.includes(item.word)) {
+            studentStats.missedWords.push(item.word);
+          }
+
+          playFeedbackChime('incorrect');
+          showRevealedStage(item, 'incorrect', userGuess);
+        }
+
+        // Unmask sentences now that the word has been answered
+        renderSentenceBoxes();
+        saveStudentStats();
+        populateDeckFilterDropdown();
+        updateStatsAndProgressUI();
+      }
+
+      function handleRevealWord() {
+        const item = getCurrentItem();
+        if (!item) return;
+
+        if (state.wordStatus === 'pending') {
+          state.wordStatus = 'revealed';
+          studentStats.practicedCount += 1;
+          studentStats.streak = 0;
+          saveStudentStats();
+          updateStatsAndProgressUI();
+        }
+
+        renderSentenceBoxes();
+        showRevealedStage(item, 'revealed', '');
+        pronounceCurrentWord(false);
+      }
+
+      function showRevealedStage(item, status, userGuess) {
+        document.getElementById('mysteryWordState').classList.add('hidden');
+        document.getElementById('revealedWordState').classList.remove('hidden');
+
+        const banner = document.getElementById('resultBanner');
+        const heading = document.getElementById('revealedWordHeading');
+        heading.textContent = item.word;
+
+        if (state.currentLexicon?.partOfSpeech) {
+          const posBadge = document.getElementById('stagePosBadge');
+          posBadge.textContent = state.currentLexicon.partOfSpeech;
+          posBadge.classList.remove('hidden');
+        }
+
+        if (status === 'correct') {
+          banner.className = 'inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold bg-emerald-100 text-emerald-900 border border-emerald-300';
+          banner.innerHTML = '<span>&#10003; Correct! Well Spelled</span>';
+          document.getElementById('letterDiffContainer').classList.add('hidden');
+        } else if (status === 'incorrect') {
+          banner.className = 'inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold bg-rose-100 text-rose-900 border border-rose-300';
+          banner.innerHTML = '<span>&#10007; Incorrect — Compare Letters Below</span>';
+          renderLetterDiff(userGuess, item.word);
+        } else {
+          banner.className = 'inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold bg-amber-100 text-amber-900 border border-amber-300';
+          banner.innerHTML = '<span>Study Word &amp; Letter Pattern</span>';
+          document.getElementById('letterDiffContainer').classList.add('hidden');
+        }
+      }
+
+      function advanceWord(delta) {
+        if (!state.deck.length) return;
+        const nextIdx = (state.currentIndex + delta + state.deck.length) % state.deck.length;
+        state.currentIndex = nextIdx;
+        loadCurrentWord(true, false);
+      }
+
+      /**
+       * ============================================================================
+       * 11. UI UPDATES, FILTER DROPDOWN, TOASTS & WORD LIST MODAL
+       * ============================================================================
+       */
+      function populateDeckFilterDropdown() {
+        const select = document.getElementById('deckFilterSelect');
+        const currentVal = state.filterMode;
+        select.innerHTML = '';
+
+        const optAll = document.createElement('option');
+        optAll.value = 'ALL';
+        optAll.textContent = `All Words (Shuffled — ${ALL_WORDS.length})`;
+        select.appendChild(optAll);
+
+        const optMissed = document.createElement('option');
+        optMissed.value = 'MISSED';
+        optMissed.textContent = `Practice Missed Words (${studentStats.missedWords.length})`;
+        select.appendChild(optMissed);
+
+        Object.keys(WORD_BANK).forEach((letter) => {
+          const opt = document.createElement('option');
+          opt.value = letter;
+          opt.textContent = `Letter ${letter} (${WORD_BANK[letter].length} words)`;
+          select.appendChild(opt);
+        });
+
+        select.value = currentVal;
+      }
+
+      function updateStatsAndProgressUI() {
+        const total = state.deck.length || 1;
+        const currentNum = state.deck.length ? state.currentIndex + 1 : 0;
+
+        document.getElementById('deckPositionText').textContent = `Word ${currentNum} of ${state.deck.length}`;
+        const pct = Math.min(100, Math.max(0.5, (currentNum / total) * 100));
+        document.getElementById('progressBarFill').style.width = `${pct}%`;
+
+        document.getElementById('statMastered').textContent = studentStats.masteredWords.length;
+        document.getElementById('statStreak').textContent = studentStats.streak;
+        document.getElementById('statMissed').textContent = studentStats.missedWords.length;
+
+        if (studentStats.firstTryAttempts > 0) {
+          const acc = Math.round((studentStats.firstTryCorrect / studentStats.firstTryAttempts) * 100);
+          document.getElementById('statAccuracy').textContent = `${acc}%`;
+        } else {
+          document.getElementById('statAccuracy').textContent = '—';
+        }
+      }
+
+      function updatePreferenceButtonsUI() {
+        document.getElementById('audioModeSelect').value = userPrefs.audioMode || 'auto';
+
+        const autoDot = document.getElementById('autoPronounceDot');
+        const autoBtn = document.getElementById('toggleAutoPronounce');
+        if (userPrefs.autoPronounce) {
+          autoDot.className = 'w-2 h-2 rounded-full bg-emerald-400';
+          autoBtn.classList.add('text-amber-300');
+          autoBtn.classList.remove('text-slate-400');
+        } else {
+          autoDot.className = 'w-2 h-2 rounded-full bg-slate-500';
+          autoBtn.classList.remove('text-amber-300');
+          autoBtn.classList.add('text-slate-400');
+        }
+
+        const fxIcon = document.getElementById('soundFxIcon');
+        if (userPrefs.soundFx) {
+          fxIcon.classList.add('text-amber-400');
+          fxIcon.classList.remove('text-slate-500');
+        } else {
+          fxIcon.classList.remove('text-amber-400');
+          fxIcon.classList.add('text-slate-500');
+        }
+
+        const normalBtn = document.getElementById('speedNormalBtn');
+        const slowBtn = document.getElementById('speedSlowBtn');
+        if (userPrefs.speechRate <= 0.78) {
+          slowBtn.className = 'px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer bg-white text-slate-900 shadow-sm';
+          normalBtn.className = 'px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer text-slate-600 hover:text-slate-900';
+        } else {
+          normalBtn.className = 'px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer bg-white text-slate-900 shadow-sm';
+          slowBtn.className = 'px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer text-slate-600 hover:text-slate-900';
+        }
+      }
+
+      function showToast(message, variant = 'info') {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        const styles = {
+          info: 'bg-bee-navy text-white border-slate-700',
+          success: 'bg-emerald-900 text-emerald-50 border-emerald-700',
+          warning: 'bg-amber-900 text-amber-50 border-amber-700'
+        };
+        toast.className = `pointer-events-auto px-4 py-2.5 rounded-xl border shadow-lg text-xs sm:text-sm font-medium animate-stage ${styles[variant] || styles.info}`;
+        toast.textContent = message;
+        container.appendChild(toast);
+        setTimeout(() => {
+          toast.style.opacity = '0';
+          toast.style.transition = 'opacity 0.25s ease';
+          setTimeout(() => toast.remove(), 260);
+        }, 2800);
+      }
+
+      function renderWordListModal() {
+        const grid = document.getElementById('modalWordGrid');
+        const search = document.getElementById('modalSearchInput').value.trim().toLowerCase();
+        const statusFilter = document.getElementById('modalStatusFilter').value;
+
+        const masteredSet = new Set(studentStats.masteredWords);
+        const missedSet = new Set(studentStats.missedWords);
+
+        document.getElementById('modalSummaryText').textContent =
+          `${ALL_WORDS.length} Total Words • ${masteredSet.size} Mastered • ${missedSet.size} Missed`;
+
+        const filtered = ALL_WORDS.filter((item) => {
+          if (search && !item.word.toLowerCase().includes(search)) return false;
+          if (statusFilter === 'mastered' && !masteredSet.has(item.word)) return false;
+          if (statusFilter === 'missed' && !missedSet.has(item.word)) return false;
+          if (statusFilter === 'unseen' && (masteredSet.has(item.word) || missedSet.has(item.word))) return false;
+          return true;
+        });
+
+        grid.innerHTML = '';
+        if (!filtered.length) {
+          grid.innerHTML = '<div class="col-span-full text-center py-8 text-sm text-slate-500">No matching words found.</div>';
+          return;
+        }
+
+        filtered.forEach((item) => {
+          const isMastered = masteredSet.has(item.word);
+          const isMissed = missedSet.has(item.word);
+
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          let badgeClass = 'bg-slate-50 border-slate-200 text-slate-800 hover:border-amber-400';
+          let statusDot = '<span class="w-2 h-2 rounded-full bg-slate-300"></span>';
+
+          if (isMissed) {
+            badgeClass = 'bg-rose-50 border-rose-200 text-rose-900 hover:border-rose-400';
+            statusDot = '<span class="w-2 h-2 rounded-full bg-rose-500" title="Missed"></span>';
+          } else if (isMastered) {
+            badgeClass = 'bg-emerald-50 border-emerald-200 text-emerald-900 hover:border-emerald-400';
+            statusDot = '<span class="w-2 h-2 rounded-full bg-emerald-500" title="Mastered"></span>';
+          }
+
+          btn.className = `px-3 py-2 rounded-xl border text-left text-xs sm:text-sm font-medium flex items-center justify-between gap-2 transition cursor-pointer ${badgeClass}`;
+          btn.innerHTML = `<span class="truncate">${item.word}</span>${statusDot}`;
+          btn.addEventListener('click', () => {
+            if (state.filterMode !== 'ALL') {
+              state.filterMode = 'ALL';
+              document.getElementById('deckFilterSelect').value = 'ALL';
+              buildDeck('ALL');
+            }
+            const idx = state.deck.findIndex((d) => d.word === item.word);
+            if (idx !== -1) {
+              state.currentIndex = idx;
+            }
+            document.getElementById('wordListModal').classList.add('hidden');
+            loadCurrentWord(true, false);
+          });
+          grid.appendChild(btn);
+        });
+      }
+
+      /**
+       * ============================================================================
+       * 12. EVENT LISTENERS & KEYBOARD SHORTCUTS
+       * ============================================================================
+       */
+      function bindEventListeners() {
+        // Unlock audio on first pointer or keyboard gesture
+        ['pointerdown', 'keydown', 'touchstart'].forEach((evt) => {
+          document.addEventListener(evt, unlockAudioOnGesture, { once: true, passive: true });
+        });
+
+        populateDeviceVoices();
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.onvoiceschanged = populateDeviceVoices;
+        }
+
+        // One-Click Test Sound Button
+        document.getElementById('testSoundBtn').addEventListener('click', () => {
+          unlockAudioOnGesture();
+          speakAmerican('Audio is working! Ready for the spelling bee.', {
+            label: 'Test Sound (US)',
+            isSingleWord: false
+          });
+        });
+
+        // Audio Source Mode change
+        document.getElementById('audioModeSelect').addEventListener('change', (e) => {
+          userPrefs.audioMode = e.target.value;
+          saveUserPrefs();
+          pronounceCurrentWord(false);
+        });
+
+        // Speech Speed toggles
+        document.getElementById('speedNormalBtn').addEventListener('click', () => {
+          userPrefs.speechRate = 0.95;
+          saveUserPrefs();
+          updatePreferenceButtonsUI();
+          pronounceCurrentWord(false);
+        });
+
+        document.getElementById('speedSlowBtn').addEventListener('click', () => {
+          userPrefs.speechRate = 0.72;
+          saveUserPrefs();
+          updatePreferenceButtonsUI();
+          pronounceCurrentWord(false);
+        });
+
+        // Auto-Speak & Chimes toggles
+        document.getElementById('toggleAutoPronounce').addEventListener('click', () => {
+          userPrefs.autoPronounce = !userPrefs.autoPronounce;
+          saveUserPrefs();
+          updatePreferenceButtonsUI();
+          showToast(userPrefs.autoPronounce ? 'Auto-speak enabled.' : 'Auto-speak muted.', 'info');
+        });
+
+        document.getElementById('toggleSoundFx').addEventListener('click', () => {
+          userPrefs.soundFx = !userPrefs.soundFx;
+          saveUserPrefs();
+          updatePreferenceButtonsUI();
+          if (userPrefs.soundFx) playFeedbackChime('correct');
+        });
+
+        // Deck Filter & Reshuffle
+        document.getElementById('deckFilterSelect').addEventListener('change', (e) => {
+          const mode = e.target.value;
+          if (mode === 'MISSED' && studentStats.missedWords.length === 0) {
+            showToast('You have 0 missed words right now — great job!', 'success');
+            e.target.value = state.filterMode;
+            return;
+          }
+          state.filterMode = mode;
+          buildDeck(mode);
+          loadCurrentWord(true, false);
+        });
+
+        document.getElementById('reshuffleBtn').addEventListener('click', () => {
+          buildDeck(state.filterMode);
+          loadCurrentWord(true, false);
+          showToast(`Shuffled ${state.deck.length} words!`, 'info');
+        });
+
+        document.getElementById('missedPillBtn').addEventListener('click', () => {
+          if (studentStats.missedWords.length === 0) {
+            showToast('No missed words to review yet!', 'success');
+            return;
+          }
+          state.filterMode = 'MISSED';
+          document.getElementById('deckFilterSelect').value = 'MISSED';
+          buildDeck('MISSED');
+          loadCurrentWord(true, false);
+        });
+
+        // Pronounce & Stop Audio buttons
+        document.getElementById('pronounceWordBtn').addEventListener('click', () => pronounceCurrentWord(false));
+        document.getElementById('replayRevealedBtn').addEventListener('click', () => pronounceCurrentWord(false));
+        document.getElementById('stopAudioBtn').addEventListener('click', stopAllAudio);
+
+        // On-Demand Judge Commands
+        document.getElementById('sentence1Btn').addEventListener('click', () => executeJudgeAction('sentence1'));
+        document.getElementById('sentence2Btn').addEventListener('click', () => executeJudgeAction('sentence2'));
+        document.getElementById('definitionBtn').addEventListener('click', () => executeJudgeAction('definition'));
+        document.getElementById('replayDefinitionBtn').addEventListener('click', () => executeJudgeAction('definition'));
+
+        // Show/Hide Masked Sentence Text Toggles
+        document.getElementById('toggleSentence1TextBtn').addEventListener('click', async () => {
+          const item = getCurrentItem();
+          if (!item) return;
+          if (!state.currentLexicon) {
+            document.getElementById('judgeLoadingHint').classList.remove('hidden');
+            state.currentLexicon = await getWordLexicon(item.word);
+            document.getElementById('judgeLoadingHint').classList.add('hidden');
+          }
+          renderSentenceBoxes();
+          state.showSentence1Text = !state.showSentence1Text;
+          document.getElementById('sentence1TextContainer').classList.toggle('hidden', !state.showSentence1Text);
+          document.getElementById('sentence1HiddenNote').classList.toggle('hidden', state.showSentence1Text);
+          document.getElementById('toggleSentence1Label').textContent = state.showSentence1Text ? 'Hide Text' : 'Show Text';
+        });
+
+        document.getElementById('toggleSentence2TextBtn').addEventListener('click', async () => {
+          const item = getCurrentItem();
+          if (!item) return;
+          if (!state.currentLexicon) {
+            document.getElementById('judgeLoadingHint').classList.remove('hidden');
+            state.currentLexicon = await getWordLexicon(item.word);
+            document.getElementById('judgeLoadingHint').classList.add('hidden');
+          }
+          renderSentenceBoxes();
+          state.showSentence2Text = !state.showSentence2Text;
+          document.getElementById('sentence2TextContainer').classList.toggle('hidden', !state.showSentence2Text);
+          document.getElementById('sentence2HiddenNote').classList.toggle('hidden', state.showSentence2Text);
+          document.getElementById('toggleSentence2Label').textContent = state.showSentence2Text ? 'Hide Text' : 'Show Text';
+        });
+
+        // Spelling Form Submission & Navigation
+        document.getElementById('spellingForm').addEventListener('submit', handleCheckSpelling);
+        document.getElementById('revealWordBtn').addEventListener('click', handleRevealWord);
+        document.getElementById('nextWordBtn').addEventListener('click', () => advanceWord(1));
+        document.getElementById('prevWordBtn').addEventListener('click', () => advanceWord(-1));
+
+        // Word List Modal controls
+        document.getElementById('openWordListBtn').addEventListener('click', () => {
+          renderWordListModal();
+          document.getElementById('wordListModal').classList.remove('hidden');
+        });
+
+        document.getElementById('closeWordListBtn').addEventListener('click', () => {
+          document.getElementById('wordListModal').classList.add('hidden');
+        });
+
+        document.getElementById('wordListModal').addEventListener('click', (e) => {
+          if (e.target.id === 'wordListModal') {
+            document.getElementById('wordListModal').classList.add('hidden');
+          }
+        });
+
+        document.getElementById('modalSearchInput').addEventListener('input', renderWordListModal);
+        document.getElementById('modalStatusFilter').addEventListener('change', renderWordListModal);
+
+        // Two-step safe reset button
+        document.getElementById('resetProgressBtn').addEventListener('click', (e) => {
+          const btn = e.currentTarget;
+          if (!state.confirmResetArmed) {
+            state.confirmResetArmed = true;
+            btn.textContent = 'Click Again to Confirm';
+            btn.classList.add('bg-rose-600', 'text-white');
+            setTimeout(() => {
+              state.confirmResetArmed = false;
+              btn.textContent = 'Reset Stats';
+              btn.classList.remove('bg-rose-600', 'text-white');
+            }, 3500);
+            return;
+          }
+
+          state.confirmResetArmed = false;
+          btn.textContent = 'Reset Stats';
+          btn.classList.remove('bg-rose-600', 'text-white');
+
+          studentStats = {
+            practicedCount: 0,
+            firstTryCorrect: 0,
+            firstTryAttempts: 0,
+            streak: 0,
+            masteredWords: [],
+            missedWords: []
+          };
+          saveStudentStats();
+          populateDeckFilterDropdown();
+          updateStatsAndProgressUI();
+          renderWordListModal();
+          showToast('Practice statistics have been reset.', 'info');
+        });
+
+        // Global Competition Keyboard Shortcuts
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            document.getElementById('wordListModal').classList.add('hidden');
+            stopAllAudio();
+            return;
+          }
+
+          if (e.altKey) {
+            const key = e.key.toLowerCase();
+            if (key === '1') {
+              e.preventDefault();
+              pronounceCurrentWord(false);
+            } else if (key === '2') {
+              e.preventDefault();
+              executeJudgeAction('sentence1');
+            } else if (key === '3') {
+              e.preventDefault();
+              executeJudgeAction('sentence2');
+            } else if (key === '4') {
+              e.preventDefault();
+              executeJudgeAction('definition');
+            } else if (key === 'n') {
+              e.preventDefault();
+              advanceWord(1);
+            } else if (key === 'r') {
+              e.preventDefault();
+              buildDeck(state.filterMode);
+              loadCurrentWord(true, false);
+              showToast(`Shuffled ${state.deck.length} words!`, 'info');
+            }
+          }
+        });
+      }
+
+      /**
+       * ============================================================================
+       * 13. INITIALIZE APPLICATION
+       * ============================================================================
+       */
+      function initApp() {
+        updatePreferenceButtonsUI();
+        populateDeckFilterDropdown();
+        buildDeck('ALL');
+        bindEventListeners();
+        loadCurrentWord(true, true);
+      }
+
+      window.addEventListener('DOMContentLoaded', initApp);
+    })();
+  </script>
+</body>
+</html>
